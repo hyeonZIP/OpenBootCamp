@@ -63,23 +63,23 @@
 
 ```
 tasks:
-- [ ] Spring Initializr로 프로젝트 생성
+- [x] Spring Initializr로 프로젝트 생성
       - Java 25, Gradle, Spring Boot 4.0.x
-      - 의존성: Web, JPA, H2, Security, Lombok, Validation
-- [ ] application.yml 기본 설정
+      - 의존성: Web, JPA, H2, Lombok, Validation
+- [x] application.yml 기본 설정
       - H2 콘솔 활성화 (/h2-console)
       - JPA ddl-auto: create-drop (개발)
       - 로깅 레벨 설정
-- [ ] 기본 보안 정책 원칙 설정
+- [x] 기본 보안 정책 원칙 설정 (주석으로 명시)
       // 기본값: 모든 GET 요청은 비로그인 허용 (permitAll)
       // 쓰기(POST/PUT/DELETE)는 기본 인증 필요
       // 역할별 세분화는 Phase 2 SecurityConfig에서 완성
       // ※ CORS 전역 설정은 Phase 2에서 Spring Security 의존성 추가 시 SecurityConfig에서 함께 설정
-- [ ] 공통 응답 형식 클래스 작성
+- [x] 공통 응답 형식 클래스 작성
       - ApiResponse<T> { success, data, message, errorCode }
-- [ ] 전역 예외 핸들러 (GlobalExceptionHandler)
-- [ ] Health Check 엔드포인트 GET /api/v1/health
-- [ ] 서버 실행 확인 (포트 8080)
+- [x] 전역 예외 핸들러 (GlobalExceptionHandler)
+- [x] Health Check 엔드포인트 GET /api/v1/health
+- [x] 서버 실행 확인 (포트 8080)
 ```
 
 **application.yml 구조**:
