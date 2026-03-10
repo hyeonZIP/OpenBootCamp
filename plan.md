@@ -70,11 +70,11 @@ tasks:
       - H2 콘솔 활성화 (/h2-console)
       - JPA ddl-auto: create-drop (개발)
       - 로깅 레벨 설정
-- [ ] CORS 전역 설정 (Next.js localhost:3000 허용)
 - [ ] 기본 보안 정책 원칙 설정
       // 기본값: 모든 GET 요청은 비로그인 허용 (permitAll)
       // 쓰기(POST/PUT/DELETE)는 기본 인증 필요
       // 역할별 세분화는 Phase 2 SecurityConfig에서 완성
+      // ※ CORS 전역 설정은 Phase 2에서 Spring Security 의존성 추가 시 SecurityConfig에서 함께 설정
 - [ ] 공통 응답 형식 클래스 작성
       - ApiResponse<T> { success, data, message, errorCode }
 - [ ] 전역 예외 핸들러 (GlobalExceptionHandler)
@@ -318,7 +318,10 @@ tasks:
       - POST /api/v1/auth/refresh          AT 재발급
       - POST /api/v1/auth/logout
       - GET  /api/v1/auth/me   [AUTH]
-- [ ] SecurityConfig — 경로별 접근 권한 설정
+- [ ] SecurityConfig — CORS 전역 설정 + 경로별 접근 권한 설정
+      // CORS: Next.js origin (localhost:3000, 프로덕션 도메인) 허용
+      // allowedMethods: GET, POST, PUT, DELETE, OPTIONS
+      // allowedHeaders: *, allowCredentials: true
       // ── [PUBLIC] 비로그인 허용 ──────────────────────────────────
       //  GET  /api/v1/auth/github/callback
       //  POST /api/v1/auth/refresh
