@@ -71,6 +71,10 @@ tasks:
       - JPA ddl-auto: create-drop (개발)
       - 로깅 레벨 설정
 - [ ] CORS 전역 설정 (Next.js localhost:3000 허용)
+- [ ] 기본 보안 정책 원칙 설정
+      // 기본값: 모든 GET 요청은 비로그인 허용 (permitAll)
+      // 쓰기(POST/PUT/DELETE)는 기본 인증 필요
+      // 역할별 세분화는 Phase 2 SecurityConfig에서 완성
 - [ ] 공통 응답 형식 클래스 작성
       - ApiResponse<T> { success, data, message, errorCode }
 - [ ] 전역 예외 핸들러 (GlobalExceptionHandler)
@@ -314,11 +318,35 @@ tasks:
       - POST /api/v1/auth/refresh          AT 재발급
       - POST /api/v1/auth/logout
       - GET  /api/v1/auth/me   [AUTH]
-- [ ] SecurityConfig
-      - 공개 경로: GET /bootcamps/**, GET /projects/**, /auth/**
-      - 인증 필요: POST/PUT/DELETE /bootcamps/**, /projects/**, /reviews/**
+- [ ] SecurityConfig — 경로별 접근 권한 설정
+      // ── [PUBLIC] 비로그인 허용 ──────────────────────────────────
+      //  GET  /api/v1/auth/github/callback
+      //  POST /api/v1/auth/refresh
+      //  GET  /api/v1/bootcamps/**         (목록, 상세, 트랙, 통계, 비교)
+      //  GET  /api/v1/projects/**          (목록, 상세, PR, 코드리뷰)
+      //  GET  /api/v1/pull-requests/**     (코드리뷰 조회)
+      //  GET  /api/v1/reviews/**           (리뷰 열람)
+      //
+      // ── [AUTH] 로그인 필요 ───────────────────────────────────────
+      //  POST /api/v1/auth/logout
+      //  GET  /api/v1/auth/me
+      //  POST/PUT/DELETE /api/v1/projects/**
+      //  POST/PUT/DELETE /api/v1/reviews/**
+      //  GET/PUT /api/v1/users/me/**
+      //  POST /api/v1/github/sync/**
+      //
+      // ── [BOOTCAMP_ADMIN] 운영사 이상 ────────────────────────────
+      //  POST/PUT /api/v1/bootcamps/**
+      //  POST/PUT/DELETE /api/v1/bootcamps/{id}/tracks/**
+      //  GET /api/v1/admin/bootcamp/dashboard
+      //
+      // ── [ADMIN] 플랫폼 관리자 전용 ──────────────────────────────
+      //  DELETE /api/v1/bootcamps/**
+      //  GET/PUT /api/v1/admin/**
+      //  GET /api/v1/github/rate-limit
 - [ ] Phase 1 API에 권한 추가
-      - POST/PUT/DELETE /bootcamps → BOOTCAMP_ADMIN or ADMIN
+      - POST/PUT /bootcamps → BOOTCAMP_ADMIN or ADMIN
+      - DELETE /bootcamps → ADMIN only
 - [ ] 단위 테스트 (JwtUtilTest, AuthServiceTest)
 ```
 

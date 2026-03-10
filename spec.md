@@ -122,28 +122,36 @@
 
 ### Persona A (취준생) — 박지수
 
+> **[비로그인 가능]**: 회원가입·로그인 없이 접근 가능
+> **[로그인 필요]**: GitHub OAuth 로그인 후 이용 가능
+
 ```
-US-A01: 부트캠프 탐색
+US-A01: 부트캠프 탐색                                  [비로그인 가능]
 As a 취준생,
 I want to 기술 스택(Java, React 등)과 가격대로 부트캠프를 필터링하고 싶다,
 So that 내 목표에 맞는 부트캠프 후보를 빠르게 추릴 수 있다.
 
-US-A02: 프로젝트 열람
+US-A02: 프로젝트 열람                                  [비로그인 가능]
 As a 취준생,
 I want to 특정 부트캠프 수강생들이 만든 프로젝트 목록을 볼 수 있다,
 So that 해당 부트캠프에서 배울 수 있는 실제 결과물 수준을 파악할 수 있다.
 
-US-A03: 코드리뷰 열람
+US-A03: 코드리뷰 열람                                  [비로그인 가능]
 As a 취준생,
 I want to 부트캠프 멘토가 남긴 코드리뷰 내용을 열람할 수 있다,
 So that 멘토링의 깊이와 품질을 직접 확인하고 선택에 반영할 수 있다.
 
-US-A04: 부트캠프 비교
+US-A04: 부트캠프 비교                                  [비로그인 가능]
 As a 취준생,
 I want to 최대 3개 부트캠프를 나란히 비교(프로젝트 수, 코드리뷰 수, 평점)할 수 있다,
 So that 최종 선택을 데이터 기반으로 내릴 수 있다.
 
-US-A05: 평가 남기기
+US-A05: 부트캠프 리뷰 열람                             [비로그인 가능]
+As a 취준생,
+I want to 다른 수강생이 남긴 부트캠프 별점·리뷰를 열람하고 싶다,
+So that 실제 수강 경험을 간접적으로 파악하고 선택에 참고할 수 있다.
+
+US-A06: 평가 남기기                                    [로그인 필요]
 As a 취준생(또는 수강 경험자),
 I want to 열람한 부트캠프에 별점과 리뷰를 남길 수 있다,
 So that 같은 고민을 가진 다른 사람들에게 도움을 줄 수 있다.
@@ -196,6 +204,39 @@ So that 교육 품질 개선 및 마케팅 자료로 활용할 수 있다.
 
 ## 5. Feature Specifications
 
+### 5-0. 접근 권한 매트릭스 (Access Control Matrix)
+
+> OpenBootCamp는 **투명성 플랫폼**이므로, 핵심 조회 기능은 모두 비로그인 사용자에게 개방한다.
+> 쓰기·개인화 기능만 로그인을 요구한다.
+
+| 기능 | VISITOR (비로그인) | STUDENT | BOOTCAMP_ADMIN | ADMIN |
+|------|:-----------------:|:-------:|:--------------:|:-----:|
+| 메인 홈 / 통계 조회 | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 목록 탐색 / 필터 | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 상세 조회 | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 트랙 정보 조회 | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 통계 조회 | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 비교 (최대 3개) | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 리뷰 열람 | ✅ | ✅ | ✅ | ✅ |
+| 프로젝트 목록 / 상세 조회 | ✅ | ✅ | ✅ | ✅ |
+| PR 목록 조회 | ✅ | ✅ | ✅ | ✅ |
+| 코드리뷰 열람 | ✅ | ✅ | ✅ | ✅ |
+| 부트캠프 등록 / 수정 | ❌ | ❌ | ✅ | ✅ |
+| 부트캠프 삭제 | ❌ | ❌ | ❌ | ✅ |
+| 프로젝트 등록 / 수정 / 삭제 | ❌ | ✅ (본인) | ❌ | ✅ |
+| GitHub 데이터 수동 재동기화 | ❌ | ✅ (본인) | ❌ | ✅ |
+| 부트캠프 리뷰 작성 / 수정 / 삭제 | ❌ | ✅ (본인) | ❌ | ✅ |
+| 프로젝트 좋아요 / 북마크 | ❌ | ✅ | ✅ | ✅ |
+| 마이페이지 | ❌ | ✅ | ✅ | ✅ |
+| 운영사 대시보드 | ❌ | ❌ | ✅ (본인 캠프) | ✅ |
+| 관리자 기능 | ❌ | ❌ | ❌ | ✅ |
+
+**비로그인(VISITOR) 가능 범위 요약**:
+- 모든 **조회(GET)** 기능: 부트캠프, 트랙, 프로젝트, PR, 코드리뷰, 리뷰, 통계, 비교
+- 불가: 데이터 생성·수정·삭제, 마이페이지, 좋아요/북마크
+
+---
+
 ### 5-1. MVP (Phase 1) — 핵심 기능
 
 #### F-01. 회원가입 / 로그인
@@ -206,6 +247,7 @@ So that 교육 품질 개선 및 마케팅 자료로 활용할 수 있다.
 | 역할 | `VISITOR`(비로그인), `STUDENT`(수강생), `BOOTCAMP_ADMIN`(운영사), `ADMIN`(플랫폼 관리자) |
 | JWT | Access Token(15분) + Refresh Token(7일), HttpOnly Cookie |
 | 소셜 연동 | GitHub 계정 연결 시 GitHub username, avatar, public repos 수집 |
+| 비로그인 처리 | JWT 없는 요청은 VISITOR로 간주, 공개 GET 엔드포인트는 인증 없이 200 응답 |
 
 #### F-02. 부트캠프 등록 및 탐색
 
@@ -691,103 +733,115 @@ public class BootcampReview {
 
 ## 8. API Endpoints
 
-> Base URL: `/api/v1`
-> 인증 필요 엔드포인트: `[AUTH]` 표시
-> 관리자 전용: `[ADMIN]`
+> **Base URL**: `/api/v1`
+>
+> | 표시 | 의미 |
+> |------|------|
+> | `[PUBLIC]` | 비로그인(VISITOR) 포함 누구나 접근 가능 |
+> | `[AUTH]` | GitHub OAuth 로그인 후 접근 가능 (JWT 필수) |
+> | `[BOOTCAMP_ADMIN]` | BOOTCAMP_ADMIN 또는 ADMIN 역할 필요 |
+> | `[ADMIN]` | ADMIN 역할만 접근 가능 |
 
 ### 8-1. 인증 (Auth)
 
 ```
-POST   /auth/github/callback        GitHub OAuth 콜백 → JWT 발급
-POST   /auth/refresh                Refresh Token → Access Token 재발급
-POST   /auth/logout                 로그아웃 (RT 무효화)
-GET    /auth/me           [AUTH]    현재 로그인 사용자 정보
+POST   /auth/github/callback  [PUBLIC]   GitHub OAuth 콜백 → JWT 발급
+POST   /auth/refresh          [PUBLIC]   Refresh Token → Access Token 재발급
+POST   /auth/logout           [AUTH]     로그아웃 (RT 무효화)
+GET    /auth/me               [AUTH]     현재 로그인 사용자 정보
 ```
 
 ### 8-2. 부트캠프 (Bootcamps)
 
 ```
-GET    /bootcamps                   부트캠프 목록 조회 (필터/정렬/페이징)
+GET    /bootcamps             [PUBLIC]   부트캠프 목록 조회 (필터/정렬/페이징)
   Query params:
-    - track: string (BACKEND|FRONTEND|FULLSTACK)
+    - trackType: string (BACKEND|FRONTEND|FULLSTACK|MOBILE|DATA|DEVOPS|AI_ML)
     - operationType: string (ONLINE|OFFLINE|HYBRID)
-    - techStack: string (태그 검색)
+    - techStack: string (TechStack Enum 값)
+    - keyword: string
     - sort: string (latest|projects|rating)
     - page: int (default: 0)
     - size: int (default: 20)
 
-GET    /bootcamps/{id}              부트캠프 상세 조회 (프로젝트 요약 포함)
-GET    /bootcamps/{id}/projects     해당 부트캠프 프로젝트 목록
-GET    /bootcamps/{id}/reviews      해당 부트캠프 리뷰 목록
-GET    /bootcamps/{id}/stats        해당 부트캠프 통계 (프로젝트 수, 평균 별점 등)
-GET    /bootcamps/compare?ids=1,2,3 최대 3개 부트캠프 비교 데이터
+GET    /bootcamps/{id}                  [PUBLIC]   부트캠프 상세 조회 (트랙 목록 포함)
+GET    /bootcamps/{id}/tracks           [PUBLIC]   부트캠프 트랙 목록 조회
+GET    /bootcamps/{id}/projects         [PUBLIC]   해당 부트캠프 프로젝트 목록
+GET    /bootcamps/{id}/reviews          [PUBLIC]   해당 부트캠프 리뷰 목록
+GET    /bootcamps/{id}/stats            [PUBLIC]   해당 부트캠프 통계 (프로젝트 수, 평균 별점 등)
+GET    /bootcamps/compare?ids=1,2,3     [PUBLIC]   최대 3개 부트캠프 비교 데이터
 
-POST   /bootcamps          [AUTH][BOOTCAMP_ADMIN]  부트캠프 등록
-PUT    /bootcamps/{id}     [AUTH][BOOTCAMP_ADMIN]  부트캠프 수정
-DELETE /bootcamps/{id}     [AUTH][ADMIN]           부트캠프 삭제
+POST   /bootcamps                       [AUTH][BOOTCAMP_ADMIN]  부트캠프 등록
+PUT    /bootcamps/{id}                  [AUTH][BOOTCAMP_ADMIN]  부트캠프 수정
+DELETE /bootcamps/{id}                  [AUTH][ADMIN]           부트캠프 삭제
+
+POST   /bootcamps/{id}/tracks           [AUTH][BOOTCAMP_ADMIN]  트랙 추가
+PUT    /bootcamps/{id}/tracks/{trackId} [AUTH][BOOTCAMP_ADMIN]  트랙 수정
+DELETE /bootcamps/{id}/tracks/{trackId} [AUTH][BOOTCAMP_ADMIN]  트랙 삭제
 ```
 
 ### 8-3. 프로젝트 (Projects)
 
 ```
-GET    /projects                    프로젝트 목록 조회 (필터/정렬/페이징)
+GET    /projects              [PUBLIC]   프로젝트 목록 조회 (필터/정렬/페이징)
   Query params:
     - bootcampId: long
-    - techTag: string
+    - techStack: string (TechStack Enum 값)
     - domain: string
     - sort: string (latest|stars|reviews)
     - page: int (default: 0)
     - size: int (default: 20)
 
-GET    /projects/{id}               프로젝트 상세 조회
-GET    /projects/{id}/pull-requests 프로젝트 PR 목록
-GET    /projects/{id}/pull-requests/{prNumber}/reviews  코드리뷰 목록
+GET    /projects/{id}                             [PUBLIC]   프로젝트 상세 조회
+GET    /projects/{id}/pull-requests               [PUBLIC]   프로젝트 PR 목록
+GET    /projects/{id}/pull-requests/{prNumber}/reviews  [PUBLIC]  코드리뷰 목록
 
-POST   /projects          [AUTH]    프로젝트 등록
-  Body: { repoUrl, bootcampId, cohort, teamType, title, description, techTags, domainTag }
+POST   /projects              [AUTH]    프로젝트 등록
+  Body: { repoUrl, bootcampId, cohort, teamType, title, description, techStacks, domainTag }
 
-PUT    /projects/{id}     [AUTH]    프로젝트 수정 (본인만)
-DELETE /projects/{id}     [AUTH]    프로젝트 삭제 (본인 또는 ADMIN)
-POST   /projects/{id}/sync [AUTH]   GitHub 데이터 수동 재동기화
+PUT    /projects/{id}         [AUTH]    프로젝트 수정 (본인만)
+DELETE /projects/{id}         [AUTH]    프로젝트 삭제 (본인 또는 ADMIN)
+POST   /projects/{id}/sync    [AUTH]    GitHub 데이터 수동 재동기화
 ```
 
 ### 8-4. 코드리뷰 (GitHub Sync)
 
 ```
-GET    /pull-requests/{id}/reviews          코드리뷰 조회
-POST   /github/sync/project/{projectId}     특정 프로젝트 GitHub 데이터 즉시 동기화 [AUTH]
-GET    /github/rate-limit                   GitHub API Rate Limit 현황 [ADMIN]
+GET    /pull-requests/{id}/reviews              [PUBLIC]   코드리뷰 조회
+POST   /github/sync/project/{projectId}         [AUTH]     특정 프로젝트 GitHub 데이터 즉시 동기화
+GET    /github/rate-limit                       [ADMIN]    GitHub API Rate Limit 현황
 ```
 
 ### 8-5. 리뷰/평가 (Reviews)
 
 ```
-GET    /reviews/bootcamp/{bootcampId}       부트캠프 리뷰 목록
-POST   /reviews/bootcamp/{bootcampId} [AUTH] 부트캠프 리뷰 등록
+GET    /reviews/bootcamp/{bootcampId}           [PUBLIC]   부트캠프 리뷰 목록
+
+POST   /reviews/bootcamp/{bootcampId}           [AUTH]     부트캠프 리뷰 등록
   Body: { rating, content }
 
-PUT    /reviews/{id}     [AUTH]    리뷰 수정 (본인만)
-DELETE /reviews/{id}     [AUTH]    리뷰 삭제 (본인 또는 ADMIN)
+PUT    /reviews/{id}                            [AUTH]     리뷰 수정 (본인만)
+DELETE /reviews/{id}                            [AUTH]     리뷰 삭제 (본인 또는 ADMIN)
 ```
 
 ### 8-6. 사용자 (Users)
 
 ```
-GET    /users/me              [AUTH]  내 프로필
-PUT    /users/me              [AUTH]  프로필 수정
-GET    /users/me/projects     [AUTH]  내 프로젝트 목록
-GET    /users/me/bookmarks    [AUTH]  북마크 목록 (Phase 2)
-POST   /users/me/bootcamp-membership [AUTH]  부트캠프 소속 인증 요청
+GET    /users/me                        [AUTH]  내 프로필
+PUT    /users/me                        [AUTH]  프로필 수정
+GET    /users/me/projects               [AUTH]  내 프로젝트 목록
+GET    /users/me/bookmarks              [AUTH]  북마크 목록 (Phase 2)
+POST   /users/me/bootcamp-membership    [AUTH]  부트캠프 소속 인증 요청
 ```
 
 ### 8-7. 관리자 (Admin)
 
 ```
-GET    /admin/users           [ADMIN]  사용자 목록
-PUT    /admin/users/{id}/role [ADMIN]  역할 변경
-GET    /admin/bootcamps/pending [ADMIN] 승인 대기 부트캠프
-PUT    /admin/bootcamps/{id}/approve [ADMIN] 부트캠프 승인
-GET    /admin/github/jobs     [ADMIN]  스케줄러 작업 현황
+GET    /admin/users                     [ADMIN]  사용자 목록
+PUT    /admin/users/{id}/role           [ADMIN]  역할 변경
+GET    /admin/bootcamps/pending         [ADMIN]  승인 대기 부트캠프
+PUT    /admin/bootcamps/{id}/approve    [ADMIN]  부트캠프 승인
+GET    /admin/github/jobs               [ADMIN]  스케줄러 작업 현황
 ```
 
 ### 8-8. 응답 형식 (공통)
