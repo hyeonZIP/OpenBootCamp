@@ -122,16 +122,16 @@ app:
 
 ```
 tasks:
-- [ ] create-next-app 생성 (TypeScript, App Router, Tailwind)
-- [ ] shadcn/ui 초기화 (npx shadcn@latest init)
-- [ ] TanStack Query Provider 설정
-- [ ] Zustand 스토어 기본 구조
-- [ ] API 클라이언트 설정 (fetch wrapper, baseURL)
-- [ ] 환경변수 설정 (.env.local)
+- [x] create-next-app 생성 (TypeScript, App Router, Tailwind)
+- [x] shadcn/ui 초기화 — lib/utils.ts (cn 헬퍼) 수동 설정, 컴포넌트는 Phase 1부터 추가
+- [x] TanStack Query Provider 설정 (providers/QueryProvider.tsx)
+- [x] Zustand 스토어 기본 구조 (store/authStore.ts)
+- [x] API 클라이언트 설정 (lib/api.ts — fetch wrapper, baseURL)
+- [x] 환경변수 설정 (.env.local)
       - NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
-- [ ] 공통 레이아웃 (Header, Footer)
-- [ ] 메인 페이지 "/" 기본 화면 (텍스트만)
-- [ ] 실행 확인 (포트 3000)
+- [x] 공통 레이아웃 (components/layout/Header.tsx, Footer.tsx)
+- [x] 메인 페이지 "/" 기본 화면
+- [x] 실행 확인 (포트 3000)
 ```
 
 **패키지 설치**:
@@ -146,20 +146,16 @@ npx shadcn@latest add button card badge input label
 ### 0-3. Docker Compose 설정
 
 ```yaml
-# docker-compose.yml (로컬 개발용)
-services:
-  backend:
-    build: ./backend
-    ports: ["8080:8080"]
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-
-  frontend:
-    build: ./frontend
-    ports: ["3000:3000"]
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8080/api/v1
+# 실제 생성된 docker-compose.yml 참고
+# backend context: . (루트 = 백엔드)
+# frontend context: ./frontend
+# backend healthcheck 후 frontend 기동 (depends_on)
 ```
+
+- [x] Dockerfile (백엔드 — 루트, eclipse-temurin:25, 멀티스테이지)
+- [x] frontend/Dockerfile (프론트엔드 — node:22-alpine, standalone 모드)
+- [x] docker-compose.yml (healthcheck, depends_on, 환경변수 주입)
+- [x] next.config.ts output: "standalone" 설정
 
 **완료 기준**: `http://localhost:3000` 접속 시 메인 페이지 표시, `http://localhost:8080/api/v1/health` → `{ "success": true }` 응답
 
