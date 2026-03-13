@@ -225,13 +225,23 @@ public class BootcampTrack {
 ```
 
 ```
-tasks:
-- [ ] Enum 작성: TrackType, OperationType, TechStack, ProjectStatus, Role
-      (spec.md 7-2 Enum 정의 참고)
-- [ ] Bootcamp 엔티티
-- [ ] BootcampTrack 엔티티 (@ManyToOne Bootcamp)
+# Domain 레이어
+- [x] Enum 작성: TrackType, OperationType, TechStack, ProjectStatus, Role
+- [x] Bootcamp 엔티티 (@EnableJpaAuditing, @CreatedDate, @LastModifiedDate)
+- [x] BootcampTrack 엔티티 (@ManyToOne Bootcamp)
+- [x] Domain 단위 테스트 (BootcampTest, BootcampTrackTest)
+
+# Repository 레이어
 - [ ] BootcampRepository, BootcampTrackRepository
-- [ ] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제)
+- [ ] Repository 단위 테스트
+
+# Service 레이어
+- [ ] 슬러그 자동 생성 유틸 (SlugUtils — kebab-case, 중복 시 suffix)
+- [ ] BootcampDto / BootcampTrackDto (Request/Response — Java Record)
+- [ ] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제, Specification 필터링)
+- [ ] Service 단위 테스트 (BootcampServiceTest)
+
+# Controller 레이어
 - [ ] BootcampController
       - GET  /api/v1/bootcamps          (목록, 페이징)
       - GET  /api/v1/bootcamps/{id}     (상세 — tracks 포함)
@@ -241,9 +251,7 @@ tasks:
       - POST /api/v1/bootcamps/{id}/tracks       (트랙 추가)
       - PUT  /api/v1/bootcamps/{id}/tracks/{trackId}  (트랙 수정)
       - DELETE /api/v1/bootcamps/{id}/tracks/{trackId} (트랙 삭제)
-- [ ] BootcampDto / BootcampTrackDto (Request/Response)
-- [ ] 슬러그 자동 생성 유틸 (이름 → kebab-case)
-- [ ] 단위 테스트 (BootcampServiceTest)
+- [ ] Controller 통합 테스트
 ```
 
 **쿼리 파라미터** (`GET /bootcamps`):
