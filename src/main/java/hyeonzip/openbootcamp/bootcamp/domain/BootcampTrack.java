@@ -4,6 +4,7 @@ import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TechStack;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import jakarta.persistence.*;
+import java.util.Objects;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -61,7 +62,7 @@ public class BootcampTrack {
                           Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
         this.trackType = trackType;
         this.operationType = operationType;
-        this.techStacks = techStacks != null ? techStacks : new ArrayList<>();
+        this.techStacks = Objects.requireNonNullElseGet(techStacks, ArrayList::new);
         this.priceMin = priceMin;
         this.priceMax = priceMax;
         this.durationWeeks = durationWeeks;
@@ -76,7 +77,7 @@ public class BootcampTrack {
                        Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
         this.trackType = trackType;
         this.operationType = operationType;
-        this.techStacks = techStacks != null ? techStacks : new ArrayList<>();
+        this.techStacks = Objects.requireNonNullElseGet(techStacks, ArrayList::new);
         this.priceMin = priceMin;
         this.priceMax = priceMax;
         this.durationWeeks = durationWeeks;
