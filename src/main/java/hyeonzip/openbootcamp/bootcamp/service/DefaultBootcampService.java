@@ -1,8 +1,12 @@
 package hyeonzip.openbootcamp.bootcamp.service;
 
-import hyeonzip.openbootcamp.bootcamp.dto.*;
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.dto.BootcampRequest;
+import hyeonzip.openbootcamp.bootcamp.dto.BootcampResponse;
+import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackRequest;
+import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackResponse;
+import hyeonzip.openbootcamp.bootcamp.service.ports.inp.BootcampService;
 import hyeonzip.openbootcamp.bootcamp.repository.BootcampRepository;
 import hyeonzip.openbootcamp.bootcamp.repository.BootcampTrackRepository;
 import hyeonzip.openbootcamp.common.enums.OperationType;
@@ -22,26 +26,24 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BootcampService {
+public class DefaultBootcampService implements BootcampService {
 
     private final BootcampRepository bootcampRepository;
     private final BootcampTrackRepository bootcampTrackRepository;
 
     // ── 목록 조회 ──────────────────────────────────────────────────
 
+    @Override
     public Page<BootcampResponse> getBootcamps(
-            TrackType trackType,
-            OperationType operationType,
-            TechStack techStack,
-            String keyword,
-            Pageable pageable
-    ) {
+            TrackType trackType, OperationType operationType,
+            TechStack techStack, String keyword, Pageable pageable) {
         return bootcampRepository.findByFilters(keyword, trackType, operationType, techStack, pageable)
                 .map(BootcampResponse::from);
     }
 
     // ── 단건 조회 ──────────────────────────────────────────────────
 
+    @Override
     public BootcampResponse getBootcamp(Long id) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksById(id)
                 .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
@@ -50,14 +52,15 @@ public class BootcampService {
 
     // ── 등록 ──────────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public BootcampResponse createBootcamp(BootcampRequest request) {
-        String slug = generateUniqueSlug(request.name(), null);
-
         if (bootcampRepository.existsByName(request.name())) {
             throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
                     "이미 존재하는 부트캠프 이름입니다: " + request.name());
         }
+
+        String slug = generateUniqueSlug(request.name(), null);
 
         Bootcamp bootcamp = Bootcamp.builder()
                 .name(request.name())
@@ -76,6 +79,7 @@ public class BootcampService {
 
     // ── 수정 ──────────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public BootcampResponse updateBootcamp(Long id, BootcampRequest request) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksById(id)
@@ -94,6 +98,7 @@ public class BootcampService {
 
     // ── 삭제 ──────────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public void deleteBootcamp(Long id) {
         if (!bootcampRepository.existsById(id)) {
@@ -104,6 +109,7 @@ public class BootcampService {
 
     // ── 트랙 추가 ─────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public BootcampTrackResponse addTrack(Long bootcampId, BootcampTrackRequest request) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksById(bootcampId)
@@ -118,6 +124,7 @@ public class BootcampService {
 
     // ── 트랙 수정 ─────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public BootcampTrackResponse updateTrack(Long bootcampId, Long trackId, BootcampTrackRequest request) {
         if (!bootcampRepository.existsById(bootcampId)) {
@@ -135,6 +142,7 @@ public class BootcampService {
 
     // ── 트랙 삭제 ─────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public void deleteTrack(Long bootcampId, Long trackId) {
         if (!bootcampRepository.existsById(bootcampId)) {

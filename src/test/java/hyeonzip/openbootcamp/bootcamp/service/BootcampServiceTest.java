@@ -1,5 +1,6 @@
 package hyeonzip.openbootcamp.bootcamp.service;
 
+import hyeonzip.openbootcamp.bootcamp.service.ports.inp.BootcampService;
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampRequest;
