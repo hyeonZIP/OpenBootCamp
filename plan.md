@@ -232,14 +232,14 @@ public class BootcampTrack {
 - [x] Domain 단위 테스트 (BootcampTest, BootcampTrackTest)
 
 # Repository 레이어
-- [ ] BootcampRepository, BootcampTrackRepository
-- [ ] Repository 단위 테스트
+- [x] BootcampRepository, BootcampTrackRepository
+- [x] Repository 단위 테스트 (BootcampRepositoryTest — 10케이스, BootcampTrackRepositoryTest — 2케이스)
 
 # Service 레이어
-- [ ] 슬러그 자동 생성 유틸 (SlugUtils — kebab-case, 중복 시 suffix)
-- [ ] BootcampDto / BootcampTrackDto (Request/Response — Java Record)
-- [ ] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제, Specification 필터링)
-- [ ] Service 단위 테스트 (BootcampServiceTest)
+- [x] 슬러그 자동 생성 유틸 (SlugUtils — kebab-case, 중복 시 suffix)
+- [x] BootcampDto / BootcampTrackDto (Request/Response — Java Record)
+- [x] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제, Specification 필터링)
+- [x] Service 단위 테스트 (BootcampServiceTest — 15케이스)
 
 # Controller 레이어
 - [ ] BootcampController
