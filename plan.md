@@ -265,14 +265,14 @@ public class BootcampTrack {
 
 ```
 tasks:
-- [ ] Bootcamp 타입 정의 (types/bootcamp.ts)
-- [ ] bootcamp API 함수 (api/bootcamp.ts)
-- [ ] 부트캠프 탐색 페이지 /bootcamps
+- [x] Bootcamp 타입 정의 (lib/types.ts)
+- [x] bootcamp API 함수 (lib/bootcampApi.ts)
+- [x] 부트캠프 탐색 페이지 /bootcamps
       - 카드 그리드 (BootcampCard 컴포넌트)
       - 기본 페이지네이션
-- [ ] 부트캠프 상세 페이지 /bootcamps/[id]
+- [x] 부트캠프 상세 페이지 /bootcamps/[id]
       - 기본 정보 표시
-- [ ] 부트캠프 등록 페이지 /bootcamps/new (임시 — 인증 없이)
+- [x] 부트캠프 등록 페이지 /bootcamps/new (임시 — 인증 없이)
       - 폼 (이름, 설명, 운영형태, 트랙)
 ```
 

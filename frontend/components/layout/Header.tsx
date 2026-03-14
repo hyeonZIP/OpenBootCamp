@@ -19,6 +19,9 @@ export default function Header() {
           <Link href="/bootcamps" className="hover:text-gray-900">
             부트캠프 탐색
           </Link>
+          <Link href="/bootcamps/new" className="hover:text-gray-900">
+            부트캠프 등록
+          </Link>
           <Link href="/projects" className="hover:text-gray-900">
             프로젝트
           </Link>

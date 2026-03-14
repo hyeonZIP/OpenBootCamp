@@ -574,23 +574,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BootcampResponse'
-        totalElements:
-          type: integer
-          format: int64
-        totalPages:
-          type: integer
-        number:
-          type: integer
-          description: 현재 페이지 번호 (0부터 시작)
-        size:
-          type: integer
-          description: 페이지 크기
-        first:
-          type: boolean
-        last:
-          type: boolean
-        empty:
-          type: boolean
+        page:
+          type: object
+          properties:
+            size:
+              type: integer
+              description: 페이지 크기
+            number:
+              type: integer
+              description: 현재 페이지 번호 (0부터 시작)
+            totalElements:
+              type: integer
+              format: int64
+            totalPages:
+              type: integer
 
     # ── ApiResponse wrappers ────────────────────────────────────────
     ApiResponseString:
