@@ -242,7 +242,7 @@ public class BootcampTrack {
 - [x] Service 단위 테스트 (BootcampServiceTest — 15케이스)
 
 # Controller 레이어
-- [ ] BootcampController
+- [x] BootcampController
       - GET  /api/v1/bootcamps          (목록, 페이징)
       - GET  /api/v1/bootcamps/{id}     (상세 — tracks 포함)
       - POST /api/v1/bootcamps          (등록, 인증 없이 허용 — Phase 2에서 권한 추가)
@@ -251,7 +251,7 @@ public class BootcampTrack {
       - POST /api/v1/bootcamps/{id}/tracks       (트랙 추가)
       - PUT  /api/v1/bootcamps/{id}/tracks/{trackId}  (트랙 수정)
       - DELETE /api/v1/bootcamps/{id}/tracks/{trackId} (트랙 삭제)
-- [ ] Controller 통합 테스트
+- [x] Controller 통합 테스트 (BootcampControllerTest — 14케이스)
 ```
 
 **쿼리 파라미터** (`GET /bootcamps`):
