@@ -104,3 +104,21 @@ Page<Bootcamp> findByFilters(@Param("keyword") String keyword,
 - `@Mock`, `@InjectMocks`, `MockitoExtension` 사용 금지
 - `@Autowired`로 실제 Bean 주입, H2 DB에 직접 데이터 저장
 - 영속성 컨텍스트 충돌이 예상되는 테스트에서는 `@PersistenceContext EntityManager` + `entityManager.clear()` 활용
+
+### Controller 테스트 — 통합 테스트
+- **`@SpringBootTest` + `@AutoConfigureMockMvc` + `@Transactional`** 사용
+- `MockMvc`로 HTTP 요청/응답 검증
+- `@BeforeEach` 이후 `entityManager.clear()` 호출하여 영속성 컨텍스트 초기화
+
+---
+
+## 6. Spring Boot 4 패키지 변경 사항
+
+Spring Boot 4에서 아래 패키지명이 변경됨:
+
+| 변경 전 (Boot 3) | 변경 후 (Boot 4) |
+|---|---|
+| `com.fasterxml.jackson.databind.ObjectMapper` | `tools.jackson.databind.ObjectMapper` |
+| `org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc` | `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc` |
+| `org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest` | `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest` |
+| `org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager` | `org.springframework.boot.jpa.test.autoconfigure.TestEntityManager` |
