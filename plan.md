@@ -36,7 +36,6 @@
 ### 공통 / 인프라
 | 기술 | 용도 |
 |------|------|
-| Docker / Docker Compose | 로컬 환경 통합 실행 |
 | Vercel | 프론트엔드 배포 |
 | Railway 또는 AWS EC2 | 백엔드 배포 |
 | GitHub Actions | CI/CD |
@@ -140,24 +139,6 @@ npm install @tanstack/react-query zustand axios
 npm install next-auth@beta
 npx shadcn@latest add button card badge input label
 ```
-
----
-
-### 0-3. Docker Compose 설정
-
-```yaml
-# 실제 생성된 docker-compose.yml 참고
-# backend context: . (루트 = 백엔드)
-# frontend context: ./frontend
-# backend healthcheck 후 frontend 기동 (depends_on)
-```
-
-- [x] Dockerfile (백엔드 — 루트, eclipse-temurin:25, 멀티스테이지)
-- [x] frontend/Dockerfile (프론트엔드 — node:22-alpine, standalone 모드)
-- [x] docker-compose.yml (healthcheck, depends_on, 환경변수 주입)
-- [x] next.config.ts output: "standalone" 설정
-
-**완료 기준**: `http://localhost:3000` 접속 시 메인 페이지 표시, `http://localhost:8080/api/v1/health` → `{ "success": true }` 응답
 
 ---
 
@@ -700,23 +681,7 @@ tasks:
 
 ---
 
-### 7-2. 배포
-
-```
-tasks:
-- [ ] Backend Dockerfile 작성
-- [ ] GitHub Actions CI 설정 (.github/workflows/ci.yml)
-      - PR 시 테스트 실행
-      - main 머지 시 Docker 이미지 빌드 + Railway/EC2 배포
-- [ ] Frontend Vercel 연결
-      - 환경변수 설정 (NEXTAUTH_SECRET, NEXT_PUBLIC_API_URL)
-- [ ] 도메인 연결 (선택)
-- [ ] 환경변수 관리 (.env.example 문서화)
-```
-
----
-
-### 7-3. 성능 및 UX
+### 7-2. 성능 및 UX
 
 ```
 tasks:
@@ -746,30 +711,6 @@ tasks:
 | 4 | Private 레포 연동 | GitHub App 권한 위임으로 Private PR 수집 |
 | 5 | 추천 알고리즘 | 열람 이력 기반 추천 |
 
----
-
-## 전체 타임라인
-
-```
-Week 1    Week 2    Week 3    Week 4    Week 5    Week 6    Week 7+
-│         │         │         │         │         │         │
-├─Phase 0─┤         │         │         │         │         │
-│ 초기설정 │         │         │         │         │         │
-│    ├─Phase 1─────┤         │         │         │         │
-│    │ 부트캠프CRUD│         │         │         │         │
-│    │    ├─Phase 2─────────┤         │         │         │
-│    │    │ 인증/로그인      │         │         │         │
-│    │    │    ├─Phase 3──────────────┤         │         │
-│    │    │    │ 프로젝트+GitHub연동  │         │         │
-│    │    │    │    ├─Phase 4──────────────────┤         │
-│    │    │    │    │ 코드리뷰 수집/열람        │         │
-│    │    │    │    │    ├─Phase 5─────────────────────┤  │
-│    │    │    │    │    │ 비교+리뷰             │  │
-│    │    │    │    │    │         ├─Phase 6──────────┤│
-│    │    │    │    │    │         │마이페이지/대시보드││
-│    │    │    │    │    │         │       ├─Phase 7──┤│
-│    │    │    │    │    │         │       │ 프로덕션  ││
-```
 
 ---
 
