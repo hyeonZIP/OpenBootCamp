@@ -4,7 +4,6 @@ import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TechStack;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import jakarta.persistence.*;
-import java.util.Objects;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,6 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "bootcamp_tracks")
@@ -62,7 +62,7 @@ public class BootcampTrack {
                           Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
         this.trackType = trackType;
         this.operationType = operationType;
-        this.techStacks = Objects.requireNonNullElseGet(techStacks, ArrayList::new);
+        this.techStacks = Optional.ofNullable(techStacks).orElseGet(ArrayList::new);
         this.priceMin = priceMin;
         this.priceMax = priceMax;
         this.durationWeeks = durationWeeks;
@@ -77,7 +77,7 @@ public class BootcampTrack {
                        Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
         this.trackType = trackType;
         this.operationType = operationType;
-        this.techStacks = Objects.requireNonNullElseGet(techStacks, ArrayList::new);
+        this.techStacks = Optional.ofNullable(techStacks).orElseGet(ArrayList::new);
         this.priceMin = priceMin;
         this.priceMax = priceMax;
         this.durationWeeks = durationWeeks;

@@ -56,6 +56,35 @@ common/
 
 ## 4. 코드 스타일
 
+### List NPE 방어 패턴
+
+List 필드의 null 처리는 **사용 목적**에 따라 아래 세 패턴 중 하나를 사용한다.
+
+**수정 목적 (엔티티 필드 저장, 가변 리스트 필요)**
+```java
+// ✅ ArrayList::new — 이후 add/remove가 가능한 가변 리스트
+List<TechStack> techStacks = Optional.ofNullable(req.techStacks()).orElseGet(ArrayList::new);
+this.techStacks = Optional.ofNullable(techStacks).orElseGet(ArrayList::new);
+```
+
+**조회 목적 — List를 직접 반환 (변환 없음)**
+```java
+// ✅ map(List::copyOf) — 원본이 가변 리스트일 수 있으므로 불변 방어 복사본 반환
+Optional.ofNullable(track.getTechStacks()).map(List::copyOf).orElseGet(List::of)
+```
+
+**조회 목적 — stream + 변환 후 반환**
+```java
+// ✅ stream().toList() — toList()가 이미 불변 리스트를 반환하므로 List::copyOf 불필요
+Optional.ofNullable(bootcamp.getTracks())
+        .orElseGet(List::of)
+        .stream().map(BootcampTrackResponse::from).toList()
+```
+
+`Objects.requireNonNullElseGet` 패턴은 사용하지 않는다.
+
+---
+
 ### 삼항연산자 금지
 ```java
 // ❌

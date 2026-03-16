@@ -4,9 +4,9 @@ import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
 import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TechStack;
 import hyeonzip.openbootcamp.common.enums.TrackType;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public record BootcampTrackResponse(
         Long id,
@@ -25,7 +25,7 @@ public record BootcampTrackResponse(
                 track.getId(),
                 track.getTrackType(),
                 track.getOperationType(),
-                track.getTechStacks(),
+                Optional.ofNullable(track.getTechStacks()).map(List::copyOf).orElseGet(List::of),
                 track.getPriceMin(),
                 track.getPriceMax(),
                 track.getDurationWeeks(),
