@@ -230,6 +230,86 @@ class BootcampControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("POST /bootcamps/{id}/tracks priceMin 음수 - 400 반환")
+    void addTrack_negativePriceMin_returns400() throws Exception {
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, -1, 100, 12, true);
+
+        mockMvc.perform(post("/api/v1/bootcamps/{id}/tracks", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps/{id}/tracks priceMax 음수 - 400 반환")
+    void addTrack_negativePriceMax_returns400() throws Exception {
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, 100, -1, 12, true);
+
+        mockMvc.perform(post("/api/v1/bootcamps/{id}/tracks", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps/{id}/tracks priceMax < priceMin - 400 반환")
+    void addTrack_priceMaxLessThanPriceMin_returns400() throws Exception {
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, 200, 100, 12, true);
+
+        mockMvc.perform(post("/api/v1/bootcamps/{id}/tracks", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps/{id}/tracks durationWeeks = 0 - 400 반환")
+    void addTrack_durationWeeksZero_returns400() throws Exception {
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, null, null, 0, true);
+
+        mockMvc.perform(post("/api/v1/bootcamps/{id}/tracks", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps/{id}/tracks durationWeeks > 104 - 400 반환")
+    void addTrack_durationWeeksOver104_returns400() throws Exception {
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, null, null, 105, true);
+
+        mockMvc.perform(post("/api/v1/bootcamps/{id}/tracks", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps/{id}/tracks price/duration null - 201 반환 (선택 필드 null 허용)")
+    void addTrack_nullOptionalFields_returns201() throws Exception {
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.DATA, OperationType.ONLINE, null, null, null, null, null);
+
+        mockMvc.perform(post("/api/v1/bootcamps/{id}/tracks", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.priceMin").isEmpty())
+                .andExpect(jsonPath("$.data.priceMax").isEmpty())
+                .andExpect(jsonPath("$.data.durationWeeks").isEmpty());
+    }
+
     // ── 트랙 수정 ─────────────────────────────────────────────────
 
     @Test
@@ -246,6 +326,36 @@ class BootcampControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.trackType").value("FRONTEND"))
                 .andExpect(jsonPath("$.data.operationType").value("OFFLINE"));
+    }
+
+    @Test
+    @DisplayName("PUT /bootcamps/{id}/tracks/{trackId} priceMin 음수 - 400 반환")
+    void updateTrack_negativePriceMin_returns400() throws Exception {
+        Long trackId = savedBootcamp.getTracks().get(0).getId();
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, -10, 100, 12, true);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}/tracks/{trackId}",
+                        savedBootcamp.getId(), trackId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("PUT /bootcamps/{id}/tracks/{trackId} priceMax < priceMin - 400 반환")
+    void updateTrack_priceMaxLessThanPriceMin_returns400() throws Exception {
+        Long trackId = savedBootcamp.getTracks().get(0).getId();
+        BootcampTrackRequest request = new BootcampTrackRequest(
+                TrackType.BACKEND, OperationType.ONLINE, null, 300, 100, 12, true);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}/tracks/{trackId}",
+                        savedBootcamp.getId(), trackId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
     }
 
     // ── 트랙 삭제 ─────────────────────────────────────────────────
