@@ -63,7 +63,7 @@ public class BootcampTrack {
                           Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
         this.trackType = trackType;
         this.operationType = operationType;
-        this.techStacks = Optional.ofNullable(techStacks).orElseGet(ArrayList::new);
+        this.techStacks = Optional.ofNullable(techStacks).map(ArrayList::new).orElseGet(ArrayList::new);
         this.priceMin = priceMin;
         this.priceMax = priceMax;
         this.durationWeeks = durationWeeks;
@@ -78,7 +78,7 @@ public class BootcampTrack {
                        Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
         this.trackType = trackType;
         this.operationType = operationType;
-        this.techStacks = Optional.ofNullable(techStacks).orElseGet(ArrayList::new);
+        this.techStacks = Optional.ofNullable(techStacks).map(ArrayList::new).orElseGet(ArrayList::new);
         this.priceMin = priceMin;
         this.priceMax = priceMax;
         this.durationWeeks = durationWeeks;
