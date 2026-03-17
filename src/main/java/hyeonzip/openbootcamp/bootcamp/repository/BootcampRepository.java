@@ -22,7 +22,7 @@ public interface BootcampRepository extends JpaRepository<Bootcamp, Long> {
 
     boolean existsBySlugAndIdNot(String slug, Long id);
 
-    @Query("SELECT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.id = :id")
+    @Query("SELECT DISTINCT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.id = :id")
     Optional<Bootcamp> findWithTracksById(@Param("id") Long id);
 
     @Query(value = """
