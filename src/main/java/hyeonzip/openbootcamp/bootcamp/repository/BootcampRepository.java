@@ -26,29 +26,29 @@ public interface BootcampRepository extends JpaRepository<Bootcamp, Long> {
     Optional<Bootcamp> findWithTracksById(@Param("id") Long id);
 
     @Query(value = """
-            SELECT DISTINCT b FROM Bootcamp b
-            WHERE (:keyword IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            AND (:trackType IS NULL OR EXISTS (
-                SELECT bt FROM BootcampTrack bt WHERE bt.bootcamp = b AND bt.trackType = :trackType))
-            AND (:operationType IS NULL OR EXISTS (
-                SELECT bt FROM BootcampTrack bt WHERE bt.bootcamp = b AND bt.operationType = :operationType))
-            AND (:techStack IS NULL OR EXISTS (
-                SELECT bt FROM BootcampTrack bt WHERE bt.bootcamp = b AND :techStack MEMBER OF bt.techStacks))
-            """,
-            countQuery = """
-            SELECT COUNT(DISTINCT b) FROM Bootcamp b
-            WHERE (:keyword IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            AND (:trackType IS NULL OR EXISTS (
-                SELECT bt FROM BootcampTrack bt WHERE bt.bootcamp = b AND bt.trackType = :trackType))
-            AND (:operationType IS NULL OR EXISTS (
-                SELECT bt FROM BootcampTrack bt WHERE bt.bootcamp = b AND bt.operationType = :operationType))
-            AND (:techStack IS NULL OR EXISTS (
-                SELECT bt FROM BootcampTrack bt WHERE bt.bootcamp = b AND :techStack MEMBER OF bt.techStacks))
-            """)
+        SELECT DISTINCT b
+        FROM Bootcamp b
+        LEFT JOIN b.tracks bt
+        WHERE 1=1
+        AND (:keyword IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (:trackType IS NULL OR bt.trackType = :trackType)
+        AND (:operationType IS NULL OR bt.operationType = :operationType)
+        AND (:techStack IS NULL OR :techStack MEMBER OF bt.techStacks)
+        """,
+        countQuery = """
+        SELECT COUNT(DISTINCT b)
+        FROM Bootcamp b
+        LEFT JOIN b.tracks bt
+        WHERE 1=1
+        AND (:keyword IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (:trackType IS NULL OR bt.trackType = :trackType)
+        AND (:operationType IS NULL OR bt.operationType = :operationType)
+        AND (:techStack IS NULL OR :techStack MEMBER OF bt.techStacks)
+        """)
     Page<Bootcamp> findByFilters(
-            @Param("keyword") String keyword,
-            @Param("trackType") TrackType trackType,
-            @Param("operationType") OperationType operationType,
-            @Param("techStack") TechStack techStack,
-            Pageable pageable);
+        @Param("keyword") String keyword,
+        @Param("trackType") TrackType trackType,
+        @Param("operationType") OperationType operationType,
+        @Param("techStack") TechStack techStack,
+        Pageable pageable);
 }
