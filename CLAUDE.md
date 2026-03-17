@@ -63,8 +63,8 @@ List 필드의 null 처리는 **사용 목적**에 따라 아래 세 패턴 중 
 **수정 목적 (엔티티 필드 저장, 가변 리스트 필요)**
 ```java
 // ✅ ArrayList::new — 이후 add/remove가 가능한 가변 리스트
-List<TechStack> techStacks = Optional.ofNullable(req.techStacks()).orElseGet(ArrayList::new);
-this.techStacks = Optional.ofNullable(techStacks).orElseGet(ArrayList::new);
+List<TechStack> techStacks = Optional.ofNullable(req.techStacks()).map(ArrayList::new).orElseGet(ArrayList::new);
+this.techStacks = Optional.ofNullable(techStacks).map(ArrayList::new).orElseGet(ArrayList::new);
 ```
 
 **조회 목적 — List를 직접 반환 (변환 없음)**
@@ -89,13 +89,6 @@ Optional.ofNullable(bootcamp.getTracks())
 ```java
 // ❌
 this.value = condition ? a : b;
-
-// ✅
-if (condition) {
-    this.value = a;
-} else {
-    this.value = b;
-}
 ```
 
 ### JPA Criteria API 금지
