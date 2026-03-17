@@ -36,7 +36,6 @@ public class Bootcamp {
     private String officialUrl;
 
     @OneToMany(mappedBy = "bootcamp", cascade = CascadeType.ALL, orphanRemoval = true)
-    @BatchSize(size = 100)
     private List<BootcampTrack> tracks = new ArrayList<>();
 
     @CreatedDate

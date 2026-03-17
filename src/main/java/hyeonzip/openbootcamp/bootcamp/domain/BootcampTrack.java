@@ -44,7 +44,6 @@ public class BootcampTrack {
     )
     @Column(name = "tech_stack")
     @Enumerated(EnumType.STRING)
-    @BatchSize(size = 100)
     private List<TechStack> techStacks = new ArrayList<>();
 
     private Integer priceMin;
