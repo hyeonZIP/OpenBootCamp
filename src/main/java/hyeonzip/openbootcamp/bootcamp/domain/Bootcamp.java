@@ -2,6 +2,7 @@ package hyeonzip.openbootcamp.bootcamp.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -35,6 +36,7 @@ public class Bootcamp {
     private String officialUrl;
 
     @OneToMany(mappedBy = "bootcamp", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 100)
     private List<BootcampTrack> tracks = new ArrayList<>();
 
     @CreatedDate

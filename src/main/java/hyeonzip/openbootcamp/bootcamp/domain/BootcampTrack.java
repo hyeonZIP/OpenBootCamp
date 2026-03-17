@@ -6,6 +6,7 @@ import hyeonzip.openbootcamp.common.enums.TrackType;
 import jakarta.persistence.*;
 import java.util.Objects;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -43,6 +44,7 @@ public class BootcampTrack {
     )
     @Column(name = "tech_stack")
     @Enumerated(EnumType.STRING)
+    @BatchSize(size = 100)
     private List<TechStack> techStacks = new ArrayList<>();
 
     private Integer priceMin;
