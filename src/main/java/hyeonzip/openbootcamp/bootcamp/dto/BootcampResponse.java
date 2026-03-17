@@ -1,9 +1,9 @@
 package hyeonzip.openbootcamp.bootcamp.dto;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public record BootcampResponse(
         Long id,
@@ -24,7 +24,11 @@ public record BootcampResponse(
                 bootcamp.getLogoUrl(),
                 bootcamp.getDescription(),
                 bootcamp.getOfficialUrl(),
-                bootcamp.getTracks().stream().map(BootcampTrackResponse::from).toList(),
+                Optional.ofNullable(bootcamp.getTracks())
+                    .orElseGet(List::of)
+                    .stream()
+                    .map(BootcampTrackResponse::from)
+                    .toList(),
                 bootcamp.getCreatedAt(),
                 bootcamp.getUpdatedAt()
         );

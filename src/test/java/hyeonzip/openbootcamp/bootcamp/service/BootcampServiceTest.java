@@ -1,6 +1,8 @@
 package hyeonzip.openbootcamp.bootcamp.service;
 
-import hyeonzip.openbootcamp.bootcamp.service.ports.inp.BootcampService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampRequest;
@@ -9,24 +11,20 @@ import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackRequest;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackResponse;
 import hyeonzip.openbootcamp.bootcamp.repository.BootcampRepository;
 import hyeonzip.openbootcamp.bootcamp.repository.BootcampTrackRepository;
+import hyeonzip.openbootcamp.bootcamp.service.ports.inp.BootcampService;
 import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
+import jakarta.persistence.EntityManager;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -41,8 +39,8 @@ class BootcampServiceTest {
     @Autowired
     private BootcampTrackRepository bootcampTrackRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Autowired
+    private EntityManager em;
 
     private Bootcamp savedBootcamp;
 
@@ -66,8 +64,8 @@ class BootcampServiceTest {
                         .isRecruiting(true)
                         .build()
         );
-        bootcampRepository.flush();
-        entityManager.clear();
+        em.flush();
+        em.clear();
     }
 
     // ── 등록 ──────────────────────────────────────────────────────
