@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId, isValidElement, Children, cloneElement } from "react";
 import { useRouter } from "next/navigation";
 import { bootcampApi } from "@/lib/bootcampApi";
 import {
@@ -112,8 +112,11 @@ export default function BootcampEditForm({ bootcamp }: Props) {
         description: description || undefined,
         officialUrl: officialUrl || undefined,
       });
-      const newSlug = res.data?.slug ?? bootcamp.slug;
-      router.push(`/bootcamps/${newSlug}`);
+      if (!res.data?.slug) {
+        setErrorMsg("수정은 완료됐지만 서버에서 slug를 반환하지 않았습니다.");
+        return;
+      }
+      router.push(`/bootcamps/${res.data.slug}`);
     } catch (err) {
       if (err instanceof ApiError) {
         setErrorMsg(err.message);
@@ -133,9 +136,11 @@ export default function BootcampEditForm({ bootcamp }: Props) {
       const res = await bootcampApi.addTrack(bootcamp.id, formToRequest(trackForm));
       if (res.data) {
         setTracks((prev) => [...prev, res.data!]);
+        setEditingTrackId(null);
+        setTrackForm(emptyTrackForm());
+      } else {
+        setTrackErrorMsg("트랙이 추가됐지만 서버에서 데이터를 반환하지 않았습니다.");
       }
-      setEditingTrackId(null);
-      setTrackForm(emptyTrackForm());
     } catch (err) {
       if (err instanceof ApiError) {
         setTrackErrorMsg(err.message);
@@ -155,8 +160,10 @@ export default function BootcampEditForm({ bootcamp }: Props) {
       const res = await bootcampApi.updateTrack(bootcamp.id, trackId, formToRequest(trackForm));
       if (res.data) {
         setTracks((prev) => prev.map((t) => (t.id === trackId ? res.data! : t)));
+        setEditingTrackId(null);
+      } else {
+        setTrackErrorMsg("트랙이 수정됐지만 서버에서 데이터를 반환하지 않았습니다.");
       }
-      setEditingTrackId(null);
     } catch (err) {
       if (err instanceof ApiError) {
         setTrackErrorMsg(err.message);
@@ -552,10 +559,20 @@ const inputClass =
   "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
+  const childArray = Children.toArray(children);
+  const first = childArray[0];
+  const linkedFirst =
+    isValidElement(first) &&
+    typeof first.type === "string" &&
+    ["input", "select", "textarea"].includes(first.type)
+      ? cloneElement(first as React.ReactElement<React.HTMLAttributes<HTMLElement>>, { id })
+      : first;
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-gray-500">{label}</label>
-      {children}
+      <label htmlFor={id} className="text-xs font-medium text-gray-500">{label}</label>
+      {linkedFirst}
+      {childArray.slice(1)}
     </div>
   );
 }

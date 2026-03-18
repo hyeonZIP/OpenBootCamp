@@ -28,6 +28,7 @@ export default function DeleteBootcampButton({ bootcampId, bootcampName }: Props
       } else {
         setError("삭제 중 오류가 발생했습니다.");
       }
+    } finally {
       setDeleting(false);
     }
   };
@@ -35,6 +36,7 @@ export default function DeleteBootcampButton({ bootcampId, bootcampName }: Props
   return (
     <>
       <button
+        type="button"
         onClick={() => setShowConfirm(true)}
         className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
       >
@@ -53,6 +55,7 @@ export default function DeleteBootcampButton({ bootcampId, bootcampName }: Props
             {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => {
                   setShowConfirm(false);
                   setError(null);
@@ -63,6 +66,7 @@ export default function DeleteBootcampButton({ bootcampId, bootcampName }: Props
                 취소
               </button>
               <button
+                type="button"
                 onClick={handleDelete}
                 disabled={deleting}
                 className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"

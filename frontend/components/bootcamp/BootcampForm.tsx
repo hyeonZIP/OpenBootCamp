@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId, isValidElement, Children, cloneElement } from "react";
 import { useRouter } from "next/navigation";
 import { bootcampApi } from "@/lib/bootcampApi";
 import {
@@ -335,10 +335,20 @@ const inputClass =
   "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
+  const childArray = Children.toArray(children);
+  const first = childArray[0];
+  const linkedFirst =
+    isValidElement(first) &&
+    typeof first.type === "string" &&
+    ["input", "select", "textarea"].includes(first.type)
+      ? cloneElement(first as React.ReactElement<React.HTMLAttributes<HTMLElement>>, { id })
+      : first;
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-gray-500">{label}</label>
-      {children}
+      <label htmlFor={id} className="text-xs font-medium text-gray-500">{label}</label>
+      {linkedFirst}
+      {childArray.slice(1)}
     </div>
   );
 }
