@@ -64,7 +64,7 @@ class SlugTest {
     @DisplayName("null 입력 시 OpenBootCampException이 발생한다")
     void from_null_throwsException() {
         assertThatThrownBy(() -> Slug.from(null))
-                .isInstanceOf(OpenBootCampException.class);
+            .isInstanceOf(OpenBootCampException.class);
     }
 
     @ParameterizedTest
@@ -72,7 +72,7 @@ class SlugTest {
     @DisplayName("빈 문자열 또는 공백만 입력 시 OpenBootCampException이 발생한다")
     void from_blankInput_throwsException(String input) {
         assertThatThrownBy(() -> Slug.from(input))
-                .isInstanceOf(OpenBootCampException.class);
+            .isInstanceOf(OpenBootCampException.class);
     }
 
     @ParameterizedTest
@@ -80,7 +80,7 @@ class SlugTest {
     @DisplayName("한글만 입력 시 ASCII 변환 후 빈 결과가 되어 OpenBootCampException이 발생한다")
     void from_koreanOnly_throwsException(String input) {
         assertThatThrownBy(() -> Slug.from(input))
-                .isInstanceOf(OpenBootCampException.class);
+            .isInstanceOf(OpenBootCampException.class);
     }
 
     @ParameterizedTest
@@ -88,7 +88,7 @@ class SlugTest {
     @DisplayName("특수문자만 입력 시 OpenBootCampException이 발생한다")
     void from_specialCharsOnly_throwsException(String input) {
         assertThatThrownBy(() -> Slug.from(input))
-                .isInstanceOf(OpenBootCampException.class);
+            .isInstanceOf(OpenBootCampException.class);
     }
 
     // ── equals / hashCode ─────────────────────────────────────────
