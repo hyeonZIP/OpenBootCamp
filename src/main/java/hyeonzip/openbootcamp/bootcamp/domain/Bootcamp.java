@@ -1,26 +1,24 @@
 package hyeonzip.openbootcamp.bootcamp.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.BatchSize;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
+import hyeonzip.openbootcamp.common.entity.AbstractEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "bootcamps")
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Bootcamp {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Bootcamp extends AbstractEntity {
 
     @Column(unique = true, nullable = false)
     private String name;
@@ -38,15 +36,9 @@ public class Bootcamp {
     @OneToMany(mappedBy = "bootcamp", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BootcampTrack> tracks = new ArrayList<>();
 
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
     @Builder
-    private Bootcamp(String name, Slug slug, String logoUrl, String description, String officialUrl) {
+    private Bootcamp(String name, Slug slug, String logoUrl, String description,
+        String officialUrl) {
         this.name = name;
         this.slug = slug;
         this.logoUrl = logoUrl;
@@ -54,7 +46,8 @@ public class Bootcamp {
         this.officialUrl = officialUrl;
     }
 
-    public void update(String name, Slug slug, String logoUrl, String description, String officialUrl) {
+    public void update(String name, Slug slug, String logoUrl, String description,
+        String officialUrl) {
         this.name = name;
         this.slug = slug;
         this.logoUrl = logoUrl;
