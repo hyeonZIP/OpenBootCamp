@@ -116,6 +116,26 @@ class BootcampControllerTest {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    @Test
+    @DisplayName("GET /bootcamps/slug/{slug} - 200 트랙 포함 반환")
+    void getBootcampBySlug_returns200WithTracks() throws Exception {
+        mockMvc.perform(get("/api/v1/bootcamps/slug/{slug}", "wecode"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.name").value("Wecode"))
+                .andExpect(jsonPath("$.data.slug").value("wecode"))
+                .andExpect(jsonPath("$.data.tracks").isArray())
+                .andExpect(jsonPath("$.data.tracks[0].trackType").value("BACKEND"));
+    }
+
+    @Test
+    @DisplayName("GET /bootcamps/slug/{slug} 존재하지 않는 slug - 404 반환")
+    void getBootcampBySlug_notFound_returns404() throws Exception {
+        mockMvc.perform(get("/api/v1/bootcamps/slug/{slug}", "nonexistent-slug"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
     // ── 등록 ──────────────────────────────────────────────────────
 
     @Test

@@ -24,6 +24,9 @@ export const bootcampApi = {
 
   getBootcamp: (id: number) => api.get<BootcampResponse>(`/bootcamps/${id}`),
 
+  getBootcampBySlug: (slug: string) =>
+    api.get<BootcampResponse>(`/bootcamps/slug/${slug}`),
+
   createBootcamp: (body: BootcampRequest) =>
     api.post<BootcampResponse>("/bootcamps", body),
 

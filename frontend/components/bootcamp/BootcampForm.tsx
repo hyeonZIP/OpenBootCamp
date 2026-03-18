@@ -100,7 +100,7 @@ export default function BootcampForm() {
         officialUrl: officialUrl || undefined,
         tracks: trackRequests,
       });
-      router.push(`/bootcamps/${res.data?.id}`);
+      router.push(`/bootcamps/${res.data?.slug}`);
     } catch (err) {
       if (err instanceof ApiError) {
         setErrorMsg(err.message);

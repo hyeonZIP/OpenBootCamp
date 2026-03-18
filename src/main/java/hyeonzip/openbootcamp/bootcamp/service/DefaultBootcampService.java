@@ -51,6 +51,13 @@ public class DefaultBootcampService implements BootcampService {
         return BootcampResponse.from(bootcamp);
     }
 
+    @Override
+    public BootcampResponse getBootcampBySlug(String slug) {
+        Bootcamp bootcamp = bootcampRepository.findWithTracksBySlug(slug)
+                .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+        return BootcampResponse.from(bootcamp);
+    }
+
     // ── 등록 ──────────────────────────────────────────────────────
 
     @Override

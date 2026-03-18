@@ -25,6 +25,9 @@ public interface BootcampRepository extends JpaRepository<Bootcamp, Long> {
     @Query("SELECT DISTINCT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.id = :id")
     Optional<Bootcamp> findWithTracksById(@Param("id") Long id);
 
+    @Query("SELECT DISTINCT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.slug = :slug")
+    Optional<Bootcamp> findWithTracksBySlug(@Param("slug") String slug);
+
     @Query(value = """
         SELECT DISTINCT b
         FROM Bootcamp b
