@@ -251,7 +251,7 @@ export default function BootcampEditForm({ bootcamp }: Props) {
             className={inputClass}
           />
           <p className="text-xs text-gray-400">
-            현재 URL: /bootcamps/{bootcamp.slug} · 영문자, 숫자, 공백만 입력하세요.
+            현재 URL: /bootcamps/{bootcamp.slug} · 영문자, 숫자, 공백, 하이픈만 입력하세요.
           </p>
         </Field>
 

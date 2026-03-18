@@ -141,7 +141,7 @@ export default function BootcampForm() {
             className={inputClass}
           />
           <p className="text-xs text-gray-400">
-            부트캠프 URL에 사용됩니다. 예) /bootcamps/wecode · 영문자, 숫자, 공백만 입력하세요.
+            부트캠프 URL에 사용됩니다. 예) /bootcamps/wecode · 영문자, 숫자, 공백, 하이픈만 입력하세요.
           </p>
         </Field>
 
