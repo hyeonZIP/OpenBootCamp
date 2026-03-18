@@ -35,11 +35,9 @@ public class Slug {
             if (StringUtils.hasText(result)) {
                 return new Slug(result);
             }
-            throw new OpenBootCampException(ErrorCode.INVALID_INPUT,
-                "유효하지 않은 영문명입니다. 영문자 또는 숫자를 포함해야 합니다: " + englishName);
+            throw new OpenBootCampException(ErrorCode.INVALID_INPUT);
         }
-        throw new OpenBootCampException(ErrorCode.INVALID_INPUT,
-            "영문명은 필수입니다.");
+        throw new OpenBootCampException(ErrorCode.INVALID_INPUT);
     }
 
     private static String getNormalizedSlug(String englishName) {

@@ -64,14 +64,12 @@ public class DefaultBootcampService implements BootcampService {
     @Transactional
     public BootcampResponse createBootcamp(BootcampRequest request) {
         if (bootcampRepository.existsByName(request.name())) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
-                    "이미 존재하는 부트캠프 이름입니다: " + request.name());
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
         }
 
         Slug slug = Slug.from(request.englishName());
         if (bootcampRepository.existsBySlugValue(slug.getValue())) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
-                    "이미 사용 중인 영문명(슬러그)입니다: " + slug.getValue());
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
         }
 
         Bootcamp bootcamp = Bootcamp.builder()
@@ -98,14 +96,12 @@ public class DefaultBootcampService implements BootcampService {
                 .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
 
         if (bootcampRepository.existsByNameAndIdNot(request.name(), id)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
-                    "이미 존재하는 부트캠프 이름입니다: " + request.name());
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
         }
 
         Slug slug = Slug.from(request.englishName());
         if (bootcampRepository.existsBySlugValueAndIdNot(slug.getValue(), id)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
-                    "이미 사용 중인 영문명(슬러그)입니다: " + slug.getValue());
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
         }
         bootcamp.update(request.name(), slug, request.logoUrl(), request.description(), request.officialUrl());
 
@@ -147,8 +143,7 @@ public class DefaultBootcampService implements BootcampService {
             throw new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND);
         }
         BootcampTrack track = bootcampTrackRepository.findByIdAndBootcampId(trackId, bootcampId)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND,
-                        "해당 부트캠프의 트랙을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND));
 
         validatePriceRange(request.priceMin(), request.priceMax());
         track.update(request.trackType(), request.operationType(), request.techStacks(),
@@ -166,8 +161,7 @@ public class DefaultBootcampService implements BootcampService {
             throw new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND);
         }
         BootcampTrack track = bootcampTrackRepository.findByIdAndBootcampId(trackId, bootcampId)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND,
-                        "해당 부트캠프의 트랙을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND));
 
         bootcampTrackRepository.delete(track);
     }
@@ -176,8 +170,7 @@ public class DefaultBootcampService implements BootcampService {
 
     private void validatePriceRange(Integer priceMin, Integer priceMax) {
         if (priceMin != null && priceMax != null && priceMax < priceMin) {
-            throw new OpenBootCampException(ErrorCode.INVALID_INPUT,
-                    "수강료 최댓값은 최솟값 이상이어야 합니다.");
+            throw new OpenBootCampException(ErrorCode.INVALID_INPUT);
         }
     }
 
