@@ -145,7 +145,7 @@ class BootcampControllerTest {
         BootcampTrackRequest trackRequest = new BootcampTrackRequest(
                 TrackType.FRONTEND, OperationType.HYBRID, null, 100, 150, 8, true);
         BootcampRequest request = new BootcampRequest(
-                "코드스테이츠", "Codestates", null, "풀스택 부트캠프", null, List.of(trackRequest));
+                "코드스테이츠", "-Codestates-", null, "풀스택 부트캠프", "https://codestates.com", List.of(trackRequest));
 
         mockMvc.perform(post("/api/v1/bootcamps")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -169,9 +169,113 @@ class BootcampControllerTest {
     }
 
     @Test
+    @DisplayName("POST /bootcamps name 30자 초과 - 400 반환")
+    void createBootcamp_nameTooLong_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "A".repeat(31), "test-camp", null, null, "https://test.com", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps englishName 누락 - 400 반환")
+    void createBootcamp_blankEnglishName_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "", null, null, "https://test.com", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps englishName 50자 초과 - 400 반환")
+    void createBootcamp_englishNameTooLong_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "a".repeat(51), null, null, "https://test.com", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps englishName 한글 포함 - 400 반환")
+    void createBootcamp_englishNameWithKorean_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "테스트camp", null, null, "https://test.com", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps logoUrl 유효하지 않은 URL - 400 반환")
+    void createBootcamp_invalidLogoUrl_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "test-camp", "not-a-url", null, "https://test.com", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps officialUrl 누락 - 400 반환")
+    void createBootcamp_blankOfficialUrl_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "test-camp", null, null, null, null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps officialUrl 유효하지 않은 URL - 400 반환")
+    void createBootcamp_invalidOfficialUrl_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "test-camp", null, null, "not-a-url", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("POST /bootcamps description 500자 초과 - 400 반환")
+    void createBootcamp_descriptionTooLong_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "테스트캠프", "test-camp", null, "A".repeat(501), "https://test.com", null);
+
+        mockMvc.perform(post("/api/v1/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
     @DisplayName("POST /bootcamps 중복 이름 - 409 반환")
     void createBootcamp_duplicateName_returns409() throws Exception {
-        BootcampRequest request = new BootcampRequest("Wecode", "wecode-unique", null, null, null, null);
+        BootcampRequest request = new BootcampRequest("Wecode", "wecode-unique", null, null, "https://wecode.co.kr", null);
 
         mockMvc.perform(post("/api/v1/bootcamps")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -186,7 +290,7 @@ class BootcampControllerTest {
     @DisplayName("PUT /bootcamps/{id} - 200 수정 성공")
     void updateBootcamp_returns200() throws Exception {
         BootcampRequest request = new BootcampRequest(
-                "위코드 Pro", "Wecode Pro", null, "업데이트된 설명", null, null);
+                "위코드 Pro", "Wecode Pro", null, "업데이트된 설명", "https://wecode.co.kr", null);
 
         mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -197,9 +301,74 @@ class BootcampControllerTest {
     }
 
     @Test
+    @DisplayName("PUT /bootcamps/{id} name 30자 초과 - 400 반환")
+    void updateBootcamp_nameTooLong_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "A".repeat(31), "wecode-pro", null, null, "https://wecode.co.kr", null);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("PUT /bootcamps/{id} englishName 누락 - 400 반환")
+    void updateBootcamp_blankEnglishName_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "위코드 Pro", "", null, null, "https://wecode.co.kr", null);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("PUT /bootcamps/{id} englishName 특수문자 포함 - 400 반환")
+    void updateBootcamp_englishNameWithSpecialChars_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "위코드 Pro", "wecode@pro!", null, null, "https://wecode.co.kr", null);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("PUT /bootcamps/{id} officialUrl 누락 - 400 반환")
+    void updateBootcamp_blankOfficialUrl_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "위코드 Pro", "wecode-pro", null, null, null, null);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    @DisplayName("PUT /bootcamps/{id} officialUrl 유효하지 않은 URL - 400 반환")
+    void updateBootcamp_invalidOfficialUrl_returns400() throws Exception {
+        BootcampRequest request = new BootcampRequest(
+                "위코드 Pro", "wecode-pro", null, null, "not-a-url", null);
+
+        mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
     @DisplayName("PUT /bootcamps/{id} 존재하지 않는 ID - 404 반환")
     void updateBootcamp_notFound_returns404() throws Exception {
-        BootcampRequest request = new BootcampRequest("New Name", "new-name", null, null, null, null);
+        BootcampRequest request = new BootcampRequest("New Name", "new-name", null, null, "https://new.com", null);
 
         mockMvc.perform(put("/api/v1/bootcamps/{id}", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
