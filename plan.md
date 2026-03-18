@@ -214,25 +214,26 @@ public class BootcampTrack {
 
 # Repository 레이어
 - [x] BootcampRepository, BootcampTrackRepository
-- [x] Repository 단위 테스트 (BootcampRepositoryTest — 10케이스, BootcampTrackRepositoryTest — 2케이스)
+- [x] Repository 단위 테스트 (BootcampRepositoryTest — 13케이스, BootcampTrackRepositoryTest — 2케이스)
 
 # Service 레이어
 - [x] 슬러그 자동 생성 유틸 (SlugUtils — kebab-case, 중복 시 suffix)
 - [x] BootcampDto / BootcampTrackDto (Request/Response — Java Record)
 - [x] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제, Specification 필터링)
-- [x] Service 단위 테스트 (BootcampServiceTest — 15케이스)
+- [x] Service 단위 테스트 (BootcampServiceTest — 17케이스)
 
 # Controller 레이어
 - [x] BootcampController
-      - GET  /api/v1/bootcamps          (목록, 페이징)
-      - GET  /api/v1/bootcamps/{id}     (상세 — tracks 포함)
-      - POST /api/v1/bootcamps          (등록, 인증 없이 허용 — Phase 2에서 권한 추가)
-      - PUT  /api/v1/bootcamps/{id}     (수정)
-      - DELETE /api/v1/bootcamps/{id}  (삭제)
+      - GET  /api/v1/bootcamps               (목록, 페이징)
+      - GET  /api/v1/bootcamps/{id}          (ID로 단건 조회 — tracks 포함)
+      - GET  /api/v1/bootcamps/slug/{slug}   (slug로 단건 조회 — tracks 포함)
+      - POST /api/v1/bootcamps               (등록, 인증 없이 허용 — Phase 2에서 권한 추가)
+      - PUT  /api/v1/bootcamps/{id}          (수정)
+      - DELETE /api/v1/bootcamps/{id}        (삭제)
       - POST /api/v1/bootcamps/{id}/tracks       (트랙 추가)
       - PUT  /api/v1/bootcamps/{id}/tracks/{trackId}  (트랙 수정)
       - DELETE /api/v1/bootcamps/{id}/tracks/{trackId} (트랙 삭제)
-- [x] Controller 통합 테스트 (BootcampControllerTest — 14케이스)
+- [x] Controller 통합 테스트 (BootcampControllerTest — 16케이스)
 ```
 
 **쿼리 파라미터** (`GET /bootcamps`):
@@ -257,36 +258,36 @@ tasks:
       - 폼 (이름, 설명, 운영형태, 트랙)
 
 # Slug 기반 라우팅 전환
-- [ ] 백엔드가 제공하는 slug 필드를 활용하여 URL 구조 변경
+- [x] 백엔드가 제공하는 slug 필드를 활용하여 URL 구조 변경
       - /bootcamps/[id] → /bootcamps/[slug] 로 라우트 변경
       - BootcampCard의 링크를 slug 기반으로 변경 (href={`/bootcamps/${bootcamp.slug}`})
       - bootcampApi.ts에 getBootcampBySlug(slug) 함수 추가
-        (GET /api/v1/bootcamps?keyword={slug} 또는 백엔드 slug 조회 엔드포인트 활용)
+        (GET /api/v1/bootcamps/slug/{slug} 백엔드 엔드포인트 활용)
       - 부트캠프 등록/수정 완료 후 리다이렉트를 slug 기반으로 변경
 
 # 부트캠프 수정/삭제
-- [ ] 부트캠프 수정 페이지 /bootcamps/[slug]/edit
-      - 등록 폼과 동일한 구조, 기존 데이터 prefill (useQuery로 상세 조회 후 폼 초기화)
-      - [수정 완료] 버튼 → PUT /api/v1/bootcamps/{id} 호출 → 성공 시 상세 페이지로 이동
-- [ ] 부트캠프 삭제 기능
-      - 상세 페이지 또는 수정 페이지에 [삭제] 버튼 배치
-      - 삭제 확인 다이얼로그 (shadcn AlertDialog 사용)
+- [x] 부트캠프 수정 페이지 /bootcamps/[slug]/edit
+      - 기존 데이터 prefill (서버 컴포넌트에서 slug로 조회 후 클라이언트 폼에 전달)
+      - [기본 정보 저장] 버튼 → PUT /api/v1/bootcamps/{id} 호출 → 성공 시 상세 페이지로 이동
+- [x] 부트캠프 삭제 기능
+      - 상세 페이지에 [삭제] 버튼 배치 (DeleteBootcampButton 클라이언트 컴포넌트)
+      - 삭제 확인 모달 다이얼로그
       - DELETE /api/v1/bootcamps/{id} 호출 → 성공 시 /bootcamps로 이동
-- [ ] 부트캠프 상세 페이지에 [수정] / [삭제] 버튼 추가 (임시 — 인증 없이 표시)
+- [x] 부트캠프 상세 페이지에 [수정] / [삭제] 버튼 추가 (임시 — 인증 없이 표시)
 
 # 트랙 관리 UI
-- [ ] 부트캠프 수정 페이지에 트랙 관리 섹션 추가
+- [x] 부트캠프 수정 페이지에 트랙 관리 섹션 추가
       - 현재 등록된 트랙 목록 표시 (trackType, operationType, techStacks, 가격, 기간, 모집여부)
-      - [트랙 추가] 버튼 → 트랙 입력 폼 열기 (인라인 또는 모달)
+      - [트랙 추가] 버튼 → 인라인 폼 열기
         입력 필드: trackType(선택), operationType(선택), techStacks(다중 선택),
                    priceMin, priceMax, durationWeeks, isRecruiting(체크박스)
         → POST /api/v1/bootcamps/{id}/tracks 호출
       - 트랙 항목마다 [수정] 버튼
-        → 해당 트랙 값으로 폼 초기화 → 수정 후 PUT /api/v1/bootcamps/{id}/tracks/{trackId}
+        → 해당 트랙 값으로 인라인 폼 초기화 → 수정 후 PUT /api/v1/bootcamps/{id}/tracks/{trackId}
       - 트랙 항목마다 [삭제] 버튼
-        → 삭제 확인 후 DELETE /api/v1/bootcamps/{id}/tracks/{trackId}
-      - 트랙 추가/수정/삭제 완료 후 트랙 목록 자동 갱신 (invalidateQueries)
-- [ ] 부트캠프 상세 페이지의 트랙 목록에 트랙 정보 상세 표시
+        → DELETE /api/v1/bootcamps/{id}/tracks/{trackId} → 로컬 상태 즉시 반영
+      - 트랙 추가/수정/삭제 완료 후 트랙 목록 자동 갱신 (로컬 state 업데이트)
+- [x] 부트캠프 상세 페이지의 트랙 목록에 트랙 정보 상세 표시
       - 각 트랙: trackType 배지, operationType 배지, techStacks 태그, 가격 범위, 기간, 모집 상태
 ```
 
