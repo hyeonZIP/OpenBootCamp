@@ -50,6 +50,7 @@ export default function BootcampForm() {
   const router = useRouter();
 
   const [name, setName] = useState("");
+  const [englishName, setEnglishName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [description, setDescription] = useState("");
   const [officialUrl, setOfficialUrl] = useState("");
@@ -95,6 +96,7 @@ export default function BootcampForm() {
     try {
       const res = await bootcampApi.createBootcamp({
         name,
+        englishName: englishName || undefined,
         logoUrl: logoUrl || undefined,
         description: description || undefined,
         officialUrl: officialUrl || undefined,
@@ -127,6 +129,19 @@ export default function BootcampForm() {
             placeholder="예) 위코드 부트캠프"
             className={inputClass}
           />
+        </Field>
+
+        <Field label="영문명 (URL 슬러그용)">
+          <input
+            type="text"
+            value={englishName}
+            onChange={(e) => setEnglishName(e.target.value)}
+            placeholder="예) wecode (미입력 시 ID 기반 URL 자동 생성)"
+            className={inputClass}
+          />
+          <p className="text-xs text-gray-400">
+            부트캠프 URL에 사용됩니다. 예) /bootcamps/wecode
+          </p>
         </Field>
 
         <Field label="로고 URL">
