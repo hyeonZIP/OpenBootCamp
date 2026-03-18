@@ -1,6 +1,7 @@
 package hyeonzip.openbootcamp.bootcamp.dto;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,7 @@ public record BootcampResponse(
         return new BootcampResponse(
                 bootcamp.getId(),
                 bootcamp.getName(),
-                bootcamp.getSlug(),
+                Optional.ofNullable(bootcamp.getSlug()).map(Slug::getValue).orElse(null),
                 bootcamp.getLogoUrl(),
                 bootcamp.getDescription(),
                 bootcamp.getOfficialUrl(),

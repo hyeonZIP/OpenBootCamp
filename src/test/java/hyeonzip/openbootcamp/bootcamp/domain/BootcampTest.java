@@ -1,5 +1,6 @@
 package hyeonzip.openbootcamp.bootcamp.domain;
 
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import org.junit.jupiter.api.DisplayName;
@@ -16,14 +17,14 @@ class BootcampTest {
     void builder_setsFieldsCorrectly() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .logoUrl("https://logo.png")
                 .description("백엔드 부트캠프")
                 .officialUrl("https://wecode.co.kr")
                 .build();
 
         assertThat(bootcamp.getName()).isEqualTo("위코드");
-        assertThat(bootcamp.getSlug()).isEqualTo("wecode");
+        assertThat(bootcamp.getSlug().getValue()).isEqualTo("wecode");
         assertThat(bootcamp.getLogoUrl()).isEqualTo("https://logo.png");
         assertThat(bootcamp.getDescription()).isEqualTo("백엔드 부트캠프");
         assertThat(bootcamp.getOfficialUrl()).isEqualTo("https://wecode.co.kr");
@@ -34,7 +35,7 @@ class BootcampTest {
     void builder_initializes_tracksAsEmptyList() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
 
         assertThat(bootcamp.getTracks()).isNotNull();
@@ -46,16 +47,16 @@ class BootcampTest {
     void update_updatesAllFields() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("원래이름")
-                .slug("original-slug")
+                .slug(Slug.from("original-slug"))
                 .logoUrl("https://old-logo.png")
                 .description("이전 설명")
                 .officialUrl("https://old.co.kr")
                 .build();
 
-        bootcamp.update("새이름", "new-slug", "https://new-logo.png", "새 설명", "https://new.co.kr");
+        bootcamp.update("새이름", Slug.from("new-slug"), "https://new-logo.png", "새 설명", "https://new.co.kr");
 
         assertThat(bootcamp.getName()).isEqualTo("새이름");
-        assertThat(bootcamp.getSlug()).isEqualTo("new-slug");
+        assertThat(bootcamp.getSlug().getValue()).isEqualTo("new-slug");
         assertThat(bootcamp.getLogoUrl()).isEqualTo("https://new-logo.png");
         assertThat(bootcamp.getDescription()).isEqualTo("새 설명");
         assertThat(bootcamp.getOfficialUrl()).isEqualTo("https://new.co.kr");
@@ -66,7 +67,7 @@ class BootcampTest {
     void addTrack_addsTrackToList() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
         BootcampTrack track = BootcampTrack.builder()
                 .trackType(TrackType.BACKEND)
@@ -84,7 +85,7 @@ class BootcampTest {
     void addTrack_assignsBootcampReference() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
         BootcampTrack track = BootcampTrack.builder()
                 .trackType(TrackType.FRONTEND)
@@ -100,7 +101,7 @@ class BootcampTest {
     void addTrack_multipleTracksAdded() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
 
         bootcamp.addTrack(BootcampTrack.builder().trackType(TrackType.BACKEND).build());
@@ -115,13 +116,13 @@ class BootcampTest {
     void update_withNullValues() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .logoUrl("https://logo.png")
                 .description("설명")
                 .officialUrl("https://wecode.co.kr")
                 .build();
 
-        bootcamp.update("위코드", "wecode", null, null, null);
+        bootcamp.update("위코드", Slug.from("wecode"), null, null, null);
 
         assertThat(bootcamp.getLogoUrl()).isNull();
         assertThat(bootcamp.getDescription()).isNull();
@@ -133,11 +134,11 @@ class BootcampTest {
     void builder_withMinimalFields() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
 
         assertThat(bootcamp.getName()).isEqualTo("위코드");
-        assertThat(bootcamp.getSlug()).isEqualTo("wecode");
+        assertThat(bootcamp.getSlug().getValue()).isEqualTo("wecode");
         assertThat(bootcamp.getLogoUrl()).isNull();
         assertThat(bootcamp.getDescription()).isNull();
         assertThat(bootcamp.getOfficialUrl()).isNull();
@@ -148,7 +149,7 @@ class BootcampTest {
     void tracks_listReferenceIsSameAfterAddTrack() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
         List<BootcampTrack> tracksRef = bootcamp.getTracks();
         BootcampTrack track = BootcampTrack.builder().trackType(TrackType.BACKEND).build();

@@ -2,6 +2,7 @@ package hyeonzip.openbootcamp.bootcamp.repository;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,7 @@ class BootcampTrackRepositoryTest {
     @DisplayName("부트캠프 ID와 트랙 ID가 일치하면 트랙을 반환한다")
     void findByIdAndBootcampId_returnsTrack_whenBothMatch() {
         Bootcamp bootcamp = em.persist(
-                Bootcamp.builder().name("위코드").slug("wecode").build()
+                Bootcamp.builder().name("위코드").slug(Slug.from("wecode")).build()
         );
         BootcampTrack track = BootcampTrack.builder()
                 .trackType(TrackType.BACKEND)
@@ -48,7 +49,7 @@ class BootcampTrackRepositoryTest {
     @DisplayName("부트캠프 ID가 다르면 빈 Optional을 반환한다")
     void findByIdAndBootcampId_returnsEmpty_whenBootcampIdMismatch() {
         Bootcamp bootcamp = em.persist(
-                Bootcamp.builder().name("위코드").slug("wecode").build()
+                Bootcamp.builder().name("위코드").slug(Slug.from("wecode")).build()
         );
         BootcampTrack track = BootcampTrack.builder()
                 .trackType(TrackType.BACKEND)

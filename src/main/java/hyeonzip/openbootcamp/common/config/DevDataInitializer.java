@@ -2,6 +2,7 @@ package hyeonzip.openbootcamp.common.config;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.bootcamp.repository.BootcampRepository;
 import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TechStack;
@@ -31,7 +32,7 @@ public class DevDataInitializer implements ApplicationRunner {
         // 코드스테이츠
         Bootcamp codestates = Bootcamp.builder()
             .name("코드스테이츠")
-            .slug("codestates")
+            .slug(Slug.from("codestates"))
             .logoUrl(null)
             .description("코드스테이츠는 소프트웨어 엔지니어링 부트캠프입니다.")
             .officialUrl("https://www.codestates.com")
@@ -54,7 +55,7 @@ public class DevDataInitializer implements ApplicationRunner {
         // 우아한테크코스
         Bootcamp woowacourse = Bootcamp.builder()
             .name("우아한테크코스")
-            .slug("woowacourse")
+            .slug(Slug.from("woowacourse"))
             .logoUrl(null)
             .description("우아한형제들이 운영하는 개발자 양성 교육 과정입니다.")
             .officialUrl("https://woowacourse.github.io")
@@ -77,7 +78,7 @@ public class DevDataInitializer implements ApplicationRunner {
         // 항해99
         Bootcamp hanghae = Bootcamp.builder()
             .name("항해99")
-            .slug("hanghae99")
+            .slug(Slug.from("hanghae99"))
             .logoUrl(null)
             .description("99일간의 집중 개발 부트캠프입니다.")
             .officialUrl("https://hanghae99.spartacodingclub.kr")
@@ -100,7 +101,7 @@ public class DevDataInitializer implements ApplicationRunner {
         // 패스트캠퍼스
         Bootcamp fastcampus = Bootcamp.builder()
             .name("패스트캠퍼스")
-            .slug("fastcampus")
+            .slug(Slug.from("fastcampus"))
             .logoUrl(null)
             .description("다양한 직군의 실무 중심 교육을 제공하는 부트캠프입니다.")
             .officialUrl("https://fastcampus.co.kr")
@@ -123,7 +124,7 @@ public class DevDataInitializer implements ApplicationRunner {
         // 제로베이스
         Bootcamp zerobase = Bootcamp.builder()
             .name("제로베이스")
-            .slug("zerobase")
+            .slug(Slug.from("zerobase"))
             .logoUrl(null)
             .description("비전공자도 시작할 수 있는 개발 부트캠프입니다.")
             .officialUrl("https://zero-base.co.kr")

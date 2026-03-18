@@ -3,6 +3,7 @@ package hyeonzip.openbootcamp.bootcamp.controller;
 import tools.jackson.databind.ObjectMapper;
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampRequest;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackRequest;
 import hyeonzip.openbootcamp.bootcamp.repository.BootcampRepository;
@@ -49,7 +50,7 @@ class BootcampControllerTest {
         savedBootcamp = bootcampRepository.save(
                 Bootcamp.builder()
                         .name("Wecode")
-                        .slug("wecode")
+                        .slug(Slug.from("wecode"))
                         .description("백엔드 부트캠프")
                         .officialUrl("https://wecode.co.kr")
                         .build()
@@ -144,13 +145,13 @@ class BootcampControllerTest {
         BootcampTrackRequest trackRequest = new BootcampTrackRequest(
                 TrackType.FRONTEND, OperationType.HYBRID, null, 100, 150, 8, true);
         BootcampRequest request = new BootcampRequest(
-                "Codestates", null, "풀스택 부트캠프", null, List.of(trackRequest));
+                "코드스테이츠", "Codestates", null, "풀스택 부트캠프", null, List.of(trackRequest));
 
         mockMvc.perform(post("/api/v1/bootcamps")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.name").value("Codestates"))
+                .andExpect(jsonPath("$.data.name").value("코드스테이츠"))
                 .andExpect(jsonPath("$.data.slug").value("codestates"))
                 .andExpect(jsonPath("$.data.tracks[0].trackType").value("FRONTEND"));
     }
@@ -158,7 +159,7 @@ class BootcampControllerTest {
     @Test
     @DisplayName("POST /bootcamps 이름 누락 - 400 반환")
     void createBootcamp_blankName_returns400() throws Exception {
-        BootcampRequest request = new BootcampRequest("", null, null, null, null);
+        BootcampRequest request = new BootcampRequest("", "some-name", null, null, null, null);
 
         mockMvc.perform(post("/api/v1/bootcamps")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -170,7 +171,7 @@ class BootcampControllerTest {
     @Test
     @DisplayName("POST /bootcamps 중복 이름 - 409 반환")
     void createBootcamp_duplicateName_returns409() throws Exception {
-        BootcampRequest request = new BootcampRequest("Wecode", null, null, null, null);
+        BootcampRequest request = new BootcampRequest("Wecode", "wecode-unique", null, null, null, null);
 
         mockMvc.perform(post("/api/v1/bootcamps")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -185,20 +186,20 @@ class BootcampControllerTest {
     @DisplayName("PUT /bootcamps/{id} - 200 수정 성공")
     void updateBootcamp_returns200() throws Exception {
         BootcampRequest request = new BootcampRequest(
-                "Wecode Pro", null, "업데이트된 설명", null, null);
+                "위코드 Pro", "Wecode Pro", null, "업데이트된 설명", null, null);
 
         mockMvc.perform(put("/api/v1/bootcamps/{id}", savedBootcamp.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.name").value("Wecode Pro"))
+                .andExpect(jsonPath("$.data.name").value("위코드 Pro"))
                 .andExpect(jsonPath("$.data.slug").value("wecode-pro"));
     }
 
     @Test
     @DisplayName("PUT /bootcamps/{id} 존재하지 않는 ID - 404 반환")
     void updateBootcamp_notFound_returns404() throws Exception {
-        BootcampRequest request = new BootcampRequest("New Name", null, null, null, null);
+        BootcampRequest request = new BootcampRequest("New Name", "new-name", null, null, null, null);
 
         mockMvc.perform(put("/api/v1/bootcamps/{id}", 999L)
                         .contentType(MediaType.APPLICATION_JSON)

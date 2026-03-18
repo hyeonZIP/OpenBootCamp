@@ -16,16 +16,16 @@ public interface BootcampRepository extends JpaRepository<Bootcamp, Long> {
 
     boolean existsByName(String name);
 
-    boolean existsBySlug(String slug);
+    boolean existsBySlugValue(String slugValue);
 
     boolean existsByNameAndIdNot(String name, Long id);
 
-    boolean existsBySlugAndIdNot(String slug, Long id);
+    boolean existsBySlugValueAndIdNot(String slugValue, Long id);
 
     @Query("SELECT DISTINCT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.id = :id")
     Optional<Bootcamp> findWithTracksById(@Param("id") Long id);
 
-    @Query("SELECT DISTINCT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.slug = :slug")
+    @Query("SELECT DISTINCT b FROM Bootcamp b LEFT JOIN FETCH b.tracks WHERE b.slug.value = :slug")
     Optional<Bootcamp> findWithTracksBySlug(@Param("slug") String slug);
 
     @Query(value = """

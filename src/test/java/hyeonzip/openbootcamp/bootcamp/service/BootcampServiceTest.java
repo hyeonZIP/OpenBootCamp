@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampRequest;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampResponse;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackRequest;
@@ -49,7 +50,7 @@ class BootcampServiceTest {
         savedBootcamp = bootcampRepository.save(
                 Bootcamp.builder()
                         .name("Wecode")
-                        .slug("wecode")
+                        .slug(Slug.from("wecode"))
                         .description("백엔드 부트캠프")
                         .officialUrl("https://wecode.co.kr")
                         .build()
@@ -76,12 +77,12 @@ class BootcampServiceTest {
         BootcampTrackRequest trackRequest = new BootcampTrackRequest(
                 TrackType.FRONTEND, OperationType.HYBRID, null, 100, 150, 8, true);
         BootcampRequest request = new BootcampRequest(
-                "Codestates", "https://logo.png", "풀스택 부트캠프", "https://codestates.com",
+                "코드스테이츠", "Codestates", "https://logo.png", "풀스택 부트캠프", "https://codestates.com",
                 List.of(trackRequest));
 
         BootcampResponse result = bootcampService.createBootcamp(request);
 
-        assertThat(result.name()).isEqualTo("Codestates");
+        assertThat(result.name()).isEqualTo("코드스테이츠");
         assertThat(result.slug()).isEqualTo("codestates");
         assertThat(result.tracks()).hasSize(1);
         assertThat(result.tracks().get(0).trackType()).isEqualTo(TrackType.FRONTEND);
@@ -91,18 +92,29 @@ class BootcampServiceTest {
     @DisplayName("트랙 없이 부트캠프 등록 성공")
     void createBootcamp_withoutTracks_success() {
         BootcampRequest request = new BootcampRequest(
-                "Elice", null, null, null, null);
+                "엘리스", "elice", null, null, null, null);
 
         BootcampResponse result = bootcampService.createBootcamp(request);
 
-        assertThat(result.name()).isEqualTo("Elice");
+        assertThat(result.name()).isEqualTo("엘리스");
         assertThat(result.tracks()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("중복 영문명(slug)으로 등록 시 예외 발생")
+    void createBootcamp_duplicateSlug_throwsException() {
+        bootcampRepository.save(Bootcamp.builder().name("코드스테이츠").slug(Slug.from("codestates")).build());
+
+        BootcampRequest request = new BootcampRequest("코드스테이츠2", "Codestates", null, null, null, null);
+
+        assertThatThrownBy(() -> bootcampService.createBootcamp(request))
+                .isInstanceOf(OpenBootCampException.class);
     }
 
     @Test
     @DisplayName("중복 이름으로 등록 시 예외 발생")
     void createBootcamp_duplicateName_throwsException() {
-        BootcampRequest request = new BootcampRequest("Wecode", null, null, null, null);
+        BootcampRequest request = new BootcampRequest("Wecode", "wecode-unique", null, null, null, null);
 
         assertThatThrownBy(() -> bootcampService.createBootcamp(request))
                 .isInstanceOf(OpenBootCampException.class);
@@ -150,7 +162,7 @@ class BootcampServiceTest {
     @Test
     @DisplayName("전체 목록 조회 성공")
     void getBootcamps_returnsAllBootcamps() {
-        bootcampRepository.save(Bootcamp.builder().name("Codestates").slug("codestates").build());
+        bootcampRepository.save(Bootcamp.builder().name("Codestates").slug(Slug.from("codestates")).build());
 
         Page<BootcampResponse> result = bootcampService.getBootcamps(
                 null, null, null, null, PageRequest.of(0, 10));
@@ -162,7 +174,7 @@ class BootcampServiceTest {
     @DisplayName("트랙 타입 필터로 조회 시 일치하는 부트캠프만 반환")
     void getBootcamps_filteredByTrackType() {
         Bootcamp other = bootcampRepository.save(
-                Bootcamp.builder().name("Codestates").slug("codestates").build()
+                Bootcamp.builder().name("Codestates").slug(Slug.from("codestates")).build()
         );
         other.addTrack(BootcampTrack.builder()
                 .trackType(TrackType.FRONTEND)
@@ -183,30 +195,41 @@ class BootcampServiceTest {
     @DisplayName("부트캠프 수정 성공")
     void updateBootcamp_success() {
         BootcampRequest request = new BootcampRequest(
-                "Wecode Pro", null, "업데이트된 설명", null, null);
+                "위코드 Pro", "Wecode Pro", null, "업데이트된 설명", null, null);
 
         BootcampResponse result = bootcampService.updateBootcamp(savedBootcamp.getId(), request);
 
-        assertThat(result.name()).isEqualTo("Wecode Pro");
+        assertThat(result.name()).isEqualTo("위코드 Pro");
         assertThat(result.slug()).isEqualTo("wecode-pro");
         assertThat(result.description()).isEqualTo("업데이트된 설명");
+    }
+
+    @Test
+    @DisplayName("중복 영문명(slug)으로 수정 시 예외 발생")
+    void updateBootcamp_duplicateSlug_throwsException() {
+        bootcampRepository.save(Bootcamp.builder().name("코드스테이츠").slug(Slug.from("codestates")).build());
+
+        BootcampRequest request = new BootcampRequest("Wecode", "Codestates", null, null, null, null);
+
+        assertThatThrownBy(() -> bootcampService.updateBootcamp(savedBootcamp.getId(), request))
+                .isInstanceOf(OpenBootCampException.class);
     }
 
     @Test
     @DisplayName("존재하지 않는 부트캠프 수정 시 예외 발생")
     void updateBootcamp_notFound_throwsException() {
         assertThatThrownBy(() -> bootcampService.updateBootcamp(999L,
-                new BootcampRequest("New Name", null, null, null, null)))
+                new BootcampRequest("New Name", "new-name", null, null, null, null)))
                 .isInstanceOf(OpenBootCampException.class);
     }
 
     @Test
     @DisplayName("다른 부트캠프와 중복된 이름으로 수정 시 예외 발생")
     void updateBootcamp_duplicateName_throwsException() {
-        bootcampRepository.save(Bootcamp.builder().name("Codestates").slug("codestates").build());
+        bootcampRepository.save(Bootcamp.builder().name("Codestates").slug(Slug.from("codestates")).build());
 
         assertThatThrownBy(() -> bootcampService.updateBootcamp(savedBootcamp.getId(),
-                new BootcampRequest("Codestates", null, null, null, null)))
+                new BootcampRequest("Codestates", "codestates-other", null, null, null, null)))
                 .isInstanceOf(OpenBootCampException.class);
     }
 
@@ -280,7 +303,7 @@ class BootcampServiceTest {
         BootcampTrack track = savedBootcamp.getTracks().get(0);
 
         Bootcamp other = bootcampRepository.save(
-                Bootcamp.builder().name("Codestates").slug("codestates").build());
+                Bootcamp.builder().name("Codestates").slug(Slug.from("codestates")).build());
 
         assertThatThrownBy(() -> bootcampService.updateTrack(other.getId(), track.getId(),
                 new BootcampTrackRequest(TrackType.BACKEND, OperationType.ONLINE, null, null, null, null, null)))

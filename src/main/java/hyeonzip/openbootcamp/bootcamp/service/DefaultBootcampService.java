@@ -2,6 +2,7 @@ package hyeonzip.openbootcamp.bootcamp.service;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampRequest;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampResponse;
 import hyeonzip.openbootcamp.bootcamp.dto.BootcampTrackRequest;
@@ -14,7 +15,6 @@ import hyeonzip.openbootcamp.common.enums.TechStack;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import hyeonzip.openbootcamp.common.exception.ErrorCode;
 import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
-import hyeonzip.openbootcamp.common.util.SlugUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +68,11 @@ public class DefaultBootcampService implements BootcampService {
                     "이미 존재하는 부트캠프 이름입니다: " + request.name());
         }
 
-        String slug = generateUniqueSlug(request.name(), null);
+        Slug slug = Slug.from(request.englishName());
+        if (bootcampRepository.existsBySlugValue(slug.getValue())) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
+                    "이미 사용 중인 영문명(슬러그)입니다: " + slug.getValue());
+        }
 
         Bootcamp bootcamp = Bootcamp.builder()
                 .name(request.name())
@@ -98,7 +102,11 @@ public class DefaultBootcampService implements BootcampService {
                     "이미 존재하는 부트캠프 이름입니다: " + request.name());
         }
 
-        String slug = generateUniqueSlug(request.name(), id);
+        Slug slug = Slug.from(request.englishName());
+        if (bootcampRepository.existsBySlugValueAndIdNot(slug.getValue(), id)) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE,
+                    "이미 사용 중인 영문명(슬러그)입니다: " + slug.getValue());
+        }
         bootcamp.update(request.name(), slug, request.logoUrl(), request.description(), request.officialUrl());
 
         return BootcampResponse.from(bootcamp);
@@ -165,24 +173,6 @@ public class DefaultBootcampService implements BootcampService {
     }
 
     // ── 내부 헬퍼 ─────────────────────────────────────────────────
-
-    private String generateUniqueSlug(String name, Long excludeId) {
-        String base = SlugUtils.toSlug(name);
-        String slug = base;
-        int count = 1;
-
-        while (true) {
-            boolean exists;
-            if (excludeId == null) {
-                exists = bootcampRepository.existsBySlug(slug);
-            } else {
-                exists = bootcampRepository.existsBySlugAndIdNot(slug, excludeId);
-            }
-            if (!exists) break;
-            slug = base + "-" + count++;
-        }
-        return slug;
-    }
 
     private void validatePriceRange(Integer priceMin, Integer priceMax) {
         if (priceMin != null && priceMax != null && priceMax < priceMin) {

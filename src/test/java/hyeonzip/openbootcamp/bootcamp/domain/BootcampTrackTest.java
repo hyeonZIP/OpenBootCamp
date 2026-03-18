@@ -141,7 +141,7 @@ class BootcampTrackTest {
     void assignBootcamp_setsBootcampReference() {
         Bootcamp bootcamp = Bootcamp.builder()
                 .name("위코드")
-                .slug("wecode")
+                .slug(Slug.from("wecode"))
                 .build();
         BootcampTrack track = BootcampTrack.builder()
                 .trackType(TrackType.BACKEND)

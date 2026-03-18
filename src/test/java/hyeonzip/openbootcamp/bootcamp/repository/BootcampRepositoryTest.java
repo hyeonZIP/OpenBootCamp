@@ -2,6 +2,7 @@ package hyeonzip.openbootcamp.bootcamp.repository;
 
 import hyeonzip.openbootcamp.bootcamp.domain.Bootcamp;
 import hyeonzip.openbootcamp.bootcamp.domain.BootcampTrack;
+import hyeonzip.openbootcamp.bootcamp.domain.Slug;
 import hyeonzip.openbootcamp.common.enums.OperationType;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,7 @@ class BootcampRepositoryTest {
         persistedBootcamp = em.persistAndFlush(
                 Bootcamp.builder()
                         .name("위코드")
-                        .slug("wecode")
+                        .slug(Slug.from("wecode"))
                         .build()
         );
     }
@@ -51,13 +52,13 @@ class BootcampRepositoryTest {
     @Test
     @DisplayName("존재하는 슬러그 조회 시 true를 반환한다")
     void existsBySlug_returnsTrue_whenExists() {
-        assertThat(bootcampRepository.existsBySlug("wecode")).isTrue();
+        assertThat(bootcampRepository.existsBySlugValue("wecode")).isTrue();
     }
 
     @Test
     @DisplayName("존재하지 않는 슬러그 조회 시 false를 반환한다")
     void existsBySlug_returnsFalse_whenNotExists() {
-        assertThat(bootcampRepository.existsBySlug("codestates")).isFalse();
+        assertThat(bootcampRepository.existsBySlugValue("codestates")).isFalse();
     }
 
     @Test
@@ -75,13 +76,13 @@ class BootcampRepositoryTest {
     @Test
     @DisplayName("다른 ID에서 동일 슬러그가 있으면 existsBySlugAndIdNot이 true를 반환한다")
     void existsBySlugAndIdNot_returnsTrue_whenDifferentId() {
-        assertThat(bootcampRepository.existsBySlugAndIdNot("wecode", 999L)).isTrue();
+        assertThat(bootcampRepository.existsBySlugValueAndIdNot("wecode", 999L)).isTrue();
     }
 
     @Test
     @DisplayName("동일 ID를 제외하면 existsBySlugAndIdNot이 false를 반환한다")
     void existsBySlugAndIdNot_returnsFalse_whenSameId() {
-        assertThat(bootcampRepository.existsBySlugAndIdNot("wecode", persistedBootcamp.getId())).isFalse();
+        assertThat(bootcampRepository.existsBySlugValueAndIdNot("wecode", persistedBootcamp.getId())).isFalse();
     }
 
     @Test

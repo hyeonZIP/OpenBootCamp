@@ -25,8 +25,8 @@ public class Bootcamp {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @Column(unique = true, nullable = false)
-    private String slug;
+    @Embedded
+    private Slug slug;
 
     private String logoUrl;
 
@@ -46,7 +46,7 @@ public class Bootcamp {
     private LocalDateTime updatedAt;
 
     @Builder
-    private Bootcamp(String name, String slug, String logoUrl, String description, String officialUrl) {
+    private Bootcamp(String name, Slug slug, String logoUrl, String description, String officialUrl) {
         this.name = name;
         this.slug = slug;
         this.logoUrl = logoUrl;
@@ -54,7 +54,7 @@ public class Bootcamp {
         this.officialUrl = officialUrl;
     }
 
-    public void update(String name, String slug, String logoUrl, String description, String officialUrl) {
+    public void update(String name, Slug slug, String logoUrl, String description, String officialUrl) {
         this.name = name;
         this.slug = slug;
         this.logoUrl = logoUrl;
