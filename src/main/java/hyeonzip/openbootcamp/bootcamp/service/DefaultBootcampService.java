@@ -15,9 +15,6 @@ import hyeonzip.openbootcamp.common.enums.TechStack;
 import hyeonzip.openbootcamp.common.enums.TrackType;
 import hyeonzip.openbootcamp.common.exception.ErrorCode;
 import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,10 +33,12 @@ public class DefaultBootcampService implements BootcampService {
 
     @Override
     public Page<BootcampResponse> getBootcamps(
-            TrackType trackType, OperationType operationType,
-            TechStack techStack, String keyword, Pageable pageable) {
-        return bootcampRepository.findByFilters(keyword, trackType, operationType, techStack, pageable)
-                .map(BootcampResponse::from);
+        TrackType trackType, OperationType operationType,
+        TechStack techStack, String keyword, Pageable pageable) {
+
+        return bootcampRepository.findByFilters(keyword, trackType, operationType, techStack,
+                pageable)
+            .map(BootcampResponse::from);
     }
 
     // ── 단건 조회 ──────────────────────────────────────────────────
@@ -47,14 +46,16 @@ public class DefaultBootcampService implements BootcampService {
     @Override
     public BootcampResponse getBootcamp(Long id) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksById(id)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+            .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+
         return BootcampResponse.from(bootcamp);
     }
 
     @Override
     public BootcampResponse getBootcampBySlug(String slug) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksBySlug(slug)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+            .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+
         return BootcampResponse.from(bootcamp);
     }
 
@@ -63,22 +64,15 @@ public class DefaultBootcampService implements BootcampService {
     @Override
     @Transactional
     public BootcampResponse createBootcamp(BootcampRequest request) {
-        if (bootcampRepository.existsByName(request.name())) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
-        }
+
+        validateBootcampNameDuplicate(request.name());
 
         Slug slug = Slug.from(request.englishName());
-        if (bootcampRepository.existsBySlugValue(slug.getValue())) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
-        }
 
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name(request.name())
-                .slug(slug)
-                .logoUrl(request.logoUrl())
-                .description(request.description())
-                .officialUrl(request.officialUrl())
-                .build();
+        validateBootcampSlugDuplicate(slug.getValue());
+
+        Bootcamp bootcamp = Bootcamp.create(request.name(), slug, request.logoUrl(),
+            request.description(), request.officialUrl());
 
         if (request.tracks() != null) {
             request.tracks().forEach(trackReq -> bootcamp.addTrack(toEntity(trackReq)));
@@ -93,17 +87,16 @@ public class DefaultBootcampService implements BootcampService {
     @Transactional
     public BootcampResponse updateBootcamp(Long id, BootcampRequest request) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksById(id)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+            .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
 
-        if (bootcampRepository.existsByNameAndIdNot(request.name(), id)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
-        }
+        validateBootcampNameDuplicate(request.name(), id);
 
         Slug slug = Slug.from(request.englishName());
-        if (bootcampRepository.existsBySlugValueAndIdNot(slug.getValue(), id)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
-        }
-        bootcamp.update(request.name(), slug, request.logoUrl(), request.description(), request.officialUrl());
+
+        validateBootcampSlugDuplicate(slug.getValue(), id);
+
+        bootcamp.update(request.name(), slug, request.logoUrl(), request.description(),
+            request.officialUrl());
 
         return BootcampResponse.from(bootcamp);
     }
@@ -125,29 +118,31 @@ public class DefaultBootcampService implements BootcampService {
     @Transactional
     public BootcampTrackResponse addTrack(Long bootcampId, BootcampTrackRequest request) {
         Bootcamp bootcamp = bootcampRepository.findWithTracksById(bootcampId)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
+            .orElseThrow(() -> new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND));
 
         BootcampTrack track = toEntity(request);
         bootcamp.addTrack(track);
-        bootcampRepository.flush();
 
-        return BootcampTrackResponse.from(track);
+        return BootcampTrackResponse.from(bootcampTrackRepository.save(track));
     }
 
     // ── 트랙 수정 ─────────────────────────────────────────────────
 
     @Override
     @Transactional
-    public BootcampTrackResponse updateTrack(Long bootcampId, Long trackId, BootcampTrackRequest request) {
-        if (!bootcampRepository.existsById(bootcampId)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND);
-        }
+    public BootcampTrackResponse updateTrack(Long bootcampId, Long trackId,
+        BootcampTrackRequest request) {
+
+        validateBootcampExisting(bootcampId);
+
         BootcampTrack track = bootcampTrackRepository.findByIdAndBootcampId(trackId, bootcampId)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND));
 
         validatePriceRange(request.priceMin(), request.priceMax());
+
         track.update(request.trackType(), request.operationType(), request.techStacks(),
-                request.priceMin(), request.priceMax(), request.durationWeeks(), request.isRecruiting());
+            request.priceMin(), request.priceMax(), request.durationWeeks(),
+            request.isRecruiting());
 
         return BootcampTrackResponse.from(track);
     }
@@ -157,11 +152,10 @@ public class DefaultBootcampService implements BootcampService {
     @Override
     @Transactional
     public void deleteTrack(Long bootcampId, Long trackId) {
-        if (!bootcampRepository.existsById(bootcampId)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND);
-        }
+        validateBootcampExisting(bootcampId);
+
         BootcampTrack track = bootcampTrackRepository.findByIdAndBootcampId(trackId, bootcampId)
-                .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new OpenBootCampException(ErrorCode.RESOURCE_NOT_FOUND));
 
         bootcampTrackRepository.delete(track);
     }
@@ -177,15 +171,43 @@ public class DefaultBootcampService implements BootcampService {
     private BootcampTrack toEntity(BootcampTrackRequest req) {
         validatePriceRange(req.priceMin(), req.priceMax());
 
-        List<TechStack> techStacks = Optional.ofNullable(req.techStacks()).orElseGet(ArrayList::new);
-        return BootcampTrack.builder()
-                .trackType(req.trackType())
-                .operationType(req.operationType())
-                .techStacks(techStacks)
-                .priceMin(req.priceMin())
-                .priceMax(req.priceMax())
-                .durationWeeks(req.durationWeeks())
-                .isRecruiting(req.isRecruiting())
-                .build();
+        return BootcampTrack.create(req.trackType(),
+            req.operationType(),
+            req.techStacks(),
+            req.priceMin(),
+            req.priceMax(),
+            req.durationWeeks(),
+            req.isRecruiting()
+        );
+    }
+
+    private void validateBootcampNameDuplicate(String name) {
+        if (bootcampRepository.existsByName(name)) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_NAME_DUPLICATE);
+        }
+    }
+
+    private void validateBootcampNameDuplicate(String name, Long excludeId) {
+        if (bootcampRepository.existsByNameAndIdNot(name, excludeId)) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_NAME_DUPLICATE);
+        }
+    }
+
+    private void validateBootcampSlugDuplicate(String slug) {
+        if (bootcampRepository.existsBySlugValue(slug)) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
+        }
+    }
+
+    private void validateBootcampSlugDuplicate(String slug, Long excludeId) {
+        if (bootcampRepository.existsBySlugValueAndIdNot(slug, excludeId)) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_SLUG_DUPLICATE);
+        }
+    }
+
+    private void validateBootcampExisting(Long bootcampId) {
+        if (!bootcampRepository.existsById(bootcampId)) {
+            throw new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND);
+        }
     }
 }

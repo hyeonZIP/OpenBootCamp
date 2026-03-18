@@ -67,6 +67,21 @@ public class BootcampTrack extends AbstractEntity {
         this.isRecruiting = isRecruiting;
     }
 
+    public static BootcampTrack create(TrackType trackType, OperationType operationType,
+        List<TechStack> techStacks,
+        Integer priceMin, Integer priceMax, Integer durationWeeks, Boolean isRecruiting) {
+
+        return BootcampTrack.builder()
+            .trackType(trackType)
+            .operationType(operationType)
+            .techStacks(techStacks)
+            .priceMin(priceMin)
+            .priceMax(priceMax)
+            .durationWeeks(durationWeeks)
+            .isRecruiting(isRecruiting)
+            .build();
+    }
+
     void assignBootcamp(Bootcamp bootcamp) {
         this.bootcamp = bootcamp;
     }

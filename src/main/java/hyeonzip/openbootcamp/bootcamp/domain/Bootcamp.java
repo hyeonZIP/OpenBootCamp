@@ -46,6 +46,17 @@ public class Bootcamp extends AbstractEntity {
         this.officialUrl = officialUrl;
     }
 
+    public static Bootcamp create(String name, Slug slug, String logoUrl, String description,
+        String officialUrl) {
+        return Bootcamp.builder()
+            .name(name)
+            .slug(slug)
+            .logoUrl(logoUrl)
+            .description(description)
+            .officialUrl(officialUrl)
+            .build();
+    }
+
     public void update(String name, Slug slug, String logoUrl, String description,
         String officialUrl) {
         this.name = name;
