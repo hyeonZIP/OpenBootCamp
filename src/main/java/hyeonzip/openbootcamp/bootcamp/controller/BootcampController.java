@@ -34,10 +34,16 @@ public class BootcampController {
         return ApiResponse.ok(bootcampService.getBootcamps(trackType, operationType, techStack, keyword, pageable));
     }
 
-    // ── 단건 조회 ──────────────────────────────────────────────────
+    // ── 단건 조회 (ID) ─────────────────────────────────────────────
     @GetMapping("/{id}")
     public ApiResponse<BootcampResponse> getBootcamp(@PathVariable Long id) {
         return ApiResponse.ok(bootcampService.getBootcamp(id));
+    }
+
+    // ── 단건 조회 (Slug) ───────────────────────────────────────────
+    @GetMapping("/slug/{slug}")
+    public ApiResponse<BootcampResponse> getBootcampBySlug(@PathVariable String slug) {
+        return ApiResponse.ok(bootcampService.getBootcampBySlug(slug));
     }
 
     // ── 등록 ──────────────────────────────────────────────────────

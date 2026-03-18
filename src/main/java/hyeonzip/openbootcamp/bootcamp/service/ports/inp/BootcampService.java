@@ -18,6 +18,8 @@ public interface BootcampService {
 
     BootcampResponse getBootcamp(Long id);
 
+    BootcampResponse getBootcampBySlug(String slug);
+
     BootcampResponse createBootcamp(BootcampRequest request);
 
     BootcampResponse updateBootcamp(Long id, BootcampRequest request);
