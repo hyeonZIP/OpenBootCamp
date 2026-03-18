@@ -255,9 +255,42 @@ tasks:
       - 기본 정보 표시
 - [x] 부트캠프 등록 페이지 /bootcamps/new (임시 — 인증 없이)
       - 폼 (이름, 설명, 운영형태, 트랙)
+
+# Slug 기반 라우팅 전환
+- [ ] 백엔드가 제공하는 slug 필드를 활용하여 URL 구조 변경
+      - /bootcamps/[id] → /bootcamps/[slug] 로 라우트 변경
+      - BootcampCard의 링크를 slug 기반으로 변경 (href={`/bootcamps/${bootcamp.slug}`})
+      - bootcampApi.ts에 getBootcampBySlug(slug) 함수 추가
+        (GET /api/v1/bootcamps?keyword={slug} 또는 백엔드 slug 조회 엔드포인트 활용)
+      - 부트캠프 등록/수정 완료 후 리다이렉트를 slug 기반으로 변경
+
+# 부트캠프 수정/삭제
+- [ ] 부트캠프 수정 페이지 /bootcamps/[slug]/edit
+      - 등록 폼과 동일한 구조, 기존 데이터 prefill (useQuery로 상세 조회 후 폼 초기화)
+      - [수정 완료] 버튼 → PUT /api/v1/bootcamps/{id} 호출 → 성공 시 상세 페이지로 이동
+- [ ] 부트캠프 삭제 기능
+      - 상세 페이지 또는 수정 페이지에 [삭제] 버튼 배치
+      - 삭제 확인 다이얼로그 (shadcn AlertDialog 사용)
+      - DELETE /api/v1/bootcamps/{id} 호출 → 성공 시 /bootcamps로 이동
+- [ ] 부트캠프 상세 페이지에 [수정] / [삭제] 버튼 추가 (임시 — 인증 없이 표시)
+
+# 트랙 관리 UI
+- [ ] 부트캠프 수정 페이지에 트랙 관리 섹션 추가
+      - 현재 등록된 트랙 목록 표시 (trackType, operationType, techStacks, 가격, 기간, 모집여부)
+      - [트랙 추가] 버튼 → 트랙 입력 폼 열기 (인라인 또는 모달)
+        입력 필드: trackType(선택), operationType(선택), techStacks(다중 선택),
+                   priceMin, priceMax, durationWeeks, isRecruiting(체크박스)
+        → POST /api/v1/bootcamps/{id}/tracks 호출
+      - 트랙 항목마다 [수정] 버튼
+        → 해당 트랙 값으로 폼 초기화 → 수정 후 PUT /api/v1/bootcamps/{id}/tracks/{trackId}
+      - 트랙 항목마다 [삭제] 버튼
+        → 삭제 확인 후 DELETE /api/v1/bootcamps/{id}/tracks/{trackId}
+      - 트랙 추가/수정/삭제 완료 후 트랙 목록 자동 갱신 (invalidateQueries)
+- [ ] 부트캠프 상세 페이지의 트랙 목록에 트랙 정보 상세 표시
+      - 각 트랙: trackType 배지, operationType 배지, techStacks 태그, 가격 범위, 기간, 모집 상태
 ```
 
-**완료 기준**: 브라우저에서 부트캠프 등록 → 목록 조회 → 상세 조회 → 수정 → 삭제 가능
+**완료 기준**: 브라우저에서 부트캠프 등록(slug 자동생성 확인) → 목록 조회(slug 기반 링크) → 상세 조회(트랙 상세 표시) → 수정(트랙 추가/수정/삭제 포함) → 삭제 가능
 
 ---
 
