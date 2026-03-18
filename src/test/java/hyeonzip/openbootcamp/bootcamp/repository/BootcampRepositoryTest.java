@@ -109,4 +109,40 @@ class BootcampRepositoryTest {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @DisplayName("slug로 트랙이 없는 부트캠프 조회 시 빈 트랙 목록을 반환한다")
+    void findWithTracksBySlug_returnsBootcampWithEmptyTracks_whenNoTracks() {
+        Optional<Bootcamp> result = bootcampRepository.findWithTracksBySlug("wecode");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getName()).isEqualTo("위코드");
+        assertThat(result.get().getTracks()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("slug로 트랙이 있는 부트캠프 조회 시 트랙을 함께 반환한다")
+    void findWithTracksBySlug_returnsBootcampWithTracks() {
+        BootcampTrack track = BootcampTrack.builder()
+                .trackType(TrackType.BACKEND)
+                .operationType(OperationType.ONLINE)
+                .build();
+        persistedBootcamp.addTrack(track);
+        em.flush();
+        em.clear();
+
+        Optional<Bootcamp> result = bootcampRepository.findWithTracksBySlug("wecode");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getTracks()).hasSize(1);
+        assertThat(result.get().getTracks().get(0).getTrackType()).isEqualTo(TrackType.BACKEND);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 slug 조회 시 빈 Optional을 반환한다")
+    void findWithTracksBySlug_returnsEmpty_whenNotFound() {
+        Optional<Bootcamp> result = bootcampRepository.findWithTracksBySlug("nonexistent");
+
+        assertThat(result).isEmpty();
+    }
 }

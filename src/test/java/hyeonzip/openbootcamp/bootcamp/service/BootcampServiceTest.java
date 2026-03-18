@@ -127,6 +127,24 @@ class BootcampServiceTest {
                 .isInstanceOf(OpenBootCampException.class);
     }
 
+    @Test
+    @DisplayName("slug로 부트캠프 조회 시 트랙 포함 반환")
+    void getBootcampBySlug_returnsWithTracks() {
+        BootcampResponse result = bootcampService.getBootcampBySlug("wecode");
+
+        assertThat(result.name()).isEqualTo("Wecode");
+        assertThat(result.slug()).isEqualTo("wecode");
+        assertThat(result.tracks()).hasSize(1);
+        assertThat(result.tracks().get(0).trackType()).isEqualTo(TrackType.BACKEND);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 slug로 조회 시 예외 발생")
+    void getBootcampBySlug_notFound_throwsException() {
+        assertThatThrownBy(() -> bootcampService.getBootcampBySlug("nonexistent"))
+                .isInstanceOf(OpenBootCampException.class);
+    }
+
     // ── 목록 조회 ──────────────────────────────────────────────────
 
     @Test
