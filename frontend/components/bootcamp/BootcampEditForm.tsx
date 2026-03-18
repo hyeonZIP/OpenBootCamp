@@ -107,7 +107,7 @@ export default function BootcampEditForm({ bootcamp }: Props) {
     try {
       const res = await bootcampApi.updateBootcamp(bootcamp.id, {
         name,
-        englishName: englishName || undefined,
+        englishName,
         logoUrl: logoUrl || undefined,
         description: description || undefined,
         officialUrl: officialUrl || undefined,
@@ -234,16 +234,17 @@ export default function BootcampEditForm({ bootcamp }: Props) {
           />
         </Field>
 
-        <Field label="영문명 (URL 슬러그 변경 시 입력)">
+        <Field label="영문명 (URL 슬러그)">
           <input
             type="text"
+            required
             value={englishName}
             onChange={(e) => setEnglishName(e.target.value)}
-            placeholder="예) wecode (미입력 시 기존 slug 유지 안 됨)"
+            placeholder="예) wecode"
             className={inputClass}
           />
           <p className="text-xs text-gray-400">
-            현재 URL: /bootcamps/{bootcamp.slug} · 변경하려면 새 영문명을 입력하세요.
+            현재 URL: /bootcamps/{bootcamp.slug} · 영문자, 숫자, 공백만 입력하세요.
           </p>
         </Field>
 

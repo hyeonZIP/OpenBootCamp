@@ -96,7 +96,7 @@ export default function BootcampForm() {
     try {
       const res = await bootcampApi.createBootcamp({
         name,
-        englishName: englishName || undefined,
+        englishName,
         logoUrl: logoUrl || undefined,
         description: description || undefined,
         officialUrl: officialUrl || undefined,
@@ -134,13 +134,14 @@ export default function BootcampForm() {
         <Field label="영문명 (URL 슬러그용)">
           <input
             type="text"
+            required
             value={englishName}
             onChange={(e) => setEnglishName(e.target.value)}
-            placeholder="예) wecode (미입력 시 ID 기반 URL 자동 생성)"
+            placeholder="예) wecode"
             className={inputClass}
           />
           <p className="text-xs text-gray-400">
-            부트캠프 URL에 사용됩니다. 예) /bootcamps/wecode
+            부트캠프 URL에 사용됩니다. 예) /bootcamps/wecode · 영문자, 숫자, 공백만 입력하세요.
           </p>
         </Field>
 

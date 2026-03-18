@@ -78,7 +78,7 @@ export interface BootcampTrackRequest {
 
 export interface BootcampRequest {
   name: string;
-  englishName?: string;
+  englishName: string;
   logoUrl?: string;
   description?: string;
   officialUrl?: string;
