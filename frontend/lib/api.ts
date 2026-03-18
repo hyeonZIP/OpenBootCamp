@@ -33,6 +33,10 @@ async function request<T>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
+  if (res.status === 204) {
+    return { success: true, data: null as T, message: null, errorCode: null };
+  }
+
   const json: ApiResponse<T> = await res.json();
 
   if (!json.success) {

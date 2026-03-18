@@ -8,11 +8,11 @@ interface Props {
 }
 
 export default function BootcampCard({ bootcamp }: Props) {
-  const { id, name, logoUrl, description, tracks } = bootcamp;
+  const { slug, name, logoUrl, description, tracks } = bootcamp;
 
   return (
     <Link
-      href={`/bootcamps/${id}`}
+      href={`/bootcamps/${slug}`}
       className="flex flex-col rounded-xl border border-gray-200 bg-white p-5 transition hover:border-gray-400 hover:shadow-sm"
     >
       {/* 헤더 */}
