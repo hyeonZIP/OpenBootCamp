@@ -29,120 +29,60 @@ public class DevDataInitializer implements ApplicationRunner {
             return;
         }
 
-        // 코드스테이츠
-        Bootcamp codestates = Bootcamp.builder()
-            .name("코드스테이츠")
-            .slug(Slug.from("codestates"))
-            .logoUrl(null)
-            .description("코드스테이츠는 소프트웨어 엔지니어링 부트캠프입니다.")
-            .officialUrl("https://www.codestates.com")
-            .build();
+        Bootcamp codestates = Bootcamp.create("코드스테이츠", Slug.from("codestates"), null,
+            "코드스테이츠는 소프트웨어 엔지니어링 부트캠프입니다.", "https://www.codestates.com");
 
-        codestates.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.FRONTEND)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.REACT, TechStack.TYPESCRIPT, TechStack.NEXT_JS))
-            .priceMin(3000000).priceMax(5000000).durationWeeks(24).isRecruiting(true)
-            .build());
+        codestates.addTrack(BootcampTrack.create(TrackType.FRONTEND, OperationType.ONLINE,
+            List.of(TechStack.REACT, TechStack.TYPESCRIPT, TechStack.NEXT_JS), 3000000, 5000000, 24,
+            true));
 
-        codestates.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.BACKEND)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.JAVA, TechStack.SPRING_BOOT, TechStack.MYSQL))
-            .priceMin(3000000).priceMax(5000000).durationWeeks(24).isRecruiting(false)
-            .build());
+        codestates.addTrack(BootcampTrack.create(TrackType.BACKEND, OperationType.ONLINE,
+            List.of(TechStack.JAVA, TechStack.SPRING_BOOT, TechStack.MYSQL), 3000000, 5000000, 24,
+            false));
 
-        // 우아한테크코스
-        Bootcamp woowacourse = Bootcamp.builder()
-            .name("우아한테크코스")
-            .slug(Slug.from("woowacourse"))
-            .logoUrl(null)
-            .description("우아한형제들이 운영하는 개발자 양성 교육 과정입니다.")
-            .officialUrl("https://woowacourse.github.io")
-            .build();
+        Bootcamp woowacourse = Bootcamp.create("우아한테크코스", Slug.from("woowacourse"), null,
+            "우아한형제들이 운영하는 개발자 양성 교육 과정입니다.", "https://woowacourse.github.io");
 
-        woowacourse.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.BACKEND)
-            .operationType(OperationType.OFFLINE)
-            .techStacks(List.of(TechStack.JAVA, TechStack.SPRING_BOOT, TechStack.MYSQL, TechStack.DOCKER))
-            .priceMin(0).priceMax(0).durationWeeks(52).isRecruiting(true)
-            .build());
+        woowacourse.addTrack(BootcampTrack.create(TrackType.BACKEND, OperationType.OFFLINE,
+            List.of(TechStack.JAVA, TechStack.SPRING_BOOT, TechStack.MYSQL, TechStack.DOCKER), 0, 0,
+            52, true));
 
-        woowacourse.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.FRONTEND)
-            .operationType(OperationType.OFFLINE)
-            .techStacks(List.of(TechStack.JAVASCRIPT, TechStack.REACT, TechStack.TYPESCRIPT))
-            .priceMin(0).priceMax(0).durationWeeks(52).isRecruiting(true)
-            .build());
+        woowacourse.addTrack(BootcampTrack.create(TrackType.FRONTEND, OperationType.OFFLINE,
+            List.of(TechStack.JAVASCRIPT, TechStack.REACT, TechStack.TYPESCRIPT), 0, 0, 52, true));
 
-        // 항해99
-        Bootcamp hanghae = Bootcamp.builder()
-            .name("항해99")
-            .slug(Slug.from("hanghae99"))
-            .logoUrl(null)
-            .description("99일간의 집중 개발 부트캠프입니다.")
-            .officialUrl("https://hanghae99.spartacodingclub.kr")
-            .build();
+        Bootcamp hanghae = Bootcamp.create("항해99", Slug.from("hanghae99"), null,
+            "99일간의 집중 개발 부트캠프입니다.", "https://hanghae99.spartacodingclub.kr");
 
-        hanghae.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.FULLSTACK)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.REACT, TechStack.NODE_JS, TechStack.MONGODB))
-            .priceMin(2990000).priceMax(2990000).durationWeeks(14).isRecruiting(true)
-            .build());
+        hanghae.addTrack(BootcampTrack.create(TrackType.FULLSTACK, OperationType.ONLINE,
+            List.of(TechStack.REACT, TechStack.NODE_JS, TechStack.MONGODB), 2990000, 2990000, 14,
+            true));
 
-        hanghae.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.BACKEND)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.JAVA, TechStack.SPRING_BOOT, TechStack.POSTGRESQL, TechStack.REDIS))
-            .priceMin(2990000).priceMax(2990000).durationWeeks(14).isRecruiting(false)
-            .build());
+        hanghae.addTrack(BootcampTrack.create(TrackType.BACKEND, OperationType.ONLINE,
+            List.of(TechStack.JAVA, TechStack.SPRING_BOOT, TechStack.POSTGRESQL, TechStack.REDIS),
+            2990000, 2990000, 14, false));
 
         // 패스트캠퍼스
-        Bootcamp fastcampus = Bootcamp.builder()
-            .name("패스트캠퍼스")
-            .slug(Slug.from("fastcampus"))
-            .logoUrl(null)
-            .description("다양한 직군의 실무 중심 교육을 제공하는 부트캠프입니다.")
-            .officialUrl("https://fastcampus.co.kr")
-            .build();
+        Bootcamp fastcampus = Bootcamp.create("패스트캠퍼스", Slug.from("fastcampus"), null,
+            "다양한 직군의 실무 중심 교육을 제공하는 부트캠프입니다.", "https://fastcampus.co.kr");
 
-        fastcampus.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.DATA)
-            .operationType(OperationType.HYBRID)
-            .techStacks(List.of(TechStack.PYTHON, TechStack.PANDAS, TechStack.SCIKIT_LEARN, TechStack.PYTORCH))
-            .priceMin(2000000).priceMax(4000000).durationWeeks(20).isRecruiting(true)
-            .build());
+        fastcampus.addTrack(BootcampTrack.create(TrackType.DATA, OperationType.HYBRID,
+            List.of(TechStack.PYTHON, TechStack.PANDAS, TechStack.SCIKIT_LEARN, TechStack.PYTORCH),
+            2000000, 4000000, 20, true));
 
-        fastcampus.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.DEVOPS)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.DOCKER, TechStack.KUBERNETES, TechStack.AWS, TechStack.CI_CD, TechStack.LINUX))
-            .priceMin(2500000).priceMax(3500000).durationWeeks(16).isRecruiting(true)
-            .build());
+        fastcampus.addTrack(BootcampTrack.create(TrackType.DEVOPS, OperationType.ONLINE,
+            List.of(TechStack.DOCKER, TechStack.KUBERNETES, TechStack.AWS, TechStack.CI_CD,
+                TechStack.LINUX), 2500000, 3500000, 16, true));
 
-        // 제로베이스
-        Bootcamp zerobase = Bootcamp.builder()
-            .name("제로베이스")
-            .slug(Slug.from("zerobase"))
-            .logoUrl(null)
-            .description("비전공자도 시작할 수 있는 개발 부트캠프입니다.")
-            .officialUrl("https://zero-base.co.kr")
-            .build();
+        Bootcamp zerobase = Bootcamp.create("제로베이스", Slug.from("zerobase"), null,
+            "비전공자도 시작할 수 있는 개발 부트캠프입니다.", "https://zero-base.co.kr");
 
-        zerobase.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.FRONTEND)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.JAVASCRIPT, TechStack.REACT, TechStack.TYPESCRIPT))
-            .priceMin(1490000).priceMax(1990000).durationWeeks(20).isRecruiting(true)
-            .build());
+        zerobase.addTrack(BootcampTrack.create(TrackType.FRONTEND, OperationType.ONLINE,
+            List.of(TechStack.JAVASCRIPT, TechStack.REACT, TechStack.TYPESCRIPT), 1490000, 1990000,
+            20, true));
 
-        zerobase.addTrack(BootcampTrack.builder()
-            .trackType(TrackType.AI_ML)
-            .operationType(OperationType.ONLINE)
-            .techStacks(List.of(TechStack.PYTHON, TechStack.TENSORFLOW, TechStack.PYTORCH, TechStack.PANDAS))
-            .priceMin(1990000).priceMax(2490000).durationWeeks(24).isRecruiting(false)
-            .build());
+        zerobase.addTrack(BootcampTrack.create(TrackType.AI_ML, OperationType.ONLINE,
+            List.of(TechStack.PYTHON, TechStack.TENSORFLOW, TechStack.PYTORCH, TechStack.PANDAS),
+            1990000, 2490000, 24, false));
 
         bootcampRepository.saveAll(List.of(codestates, woowacourse, hanghae, fastcampus, zerobase));
     }
