@@ -71,8 +71,8 @@ public class DefaultBootcampService implements BootcampService {
 
         validateBootcampSlugDuplicate(slug.getValue());
 
-        Bootcamp bootcamp = Bootcamp.create(request.name(), slug, request.logoUrl(),
-            request.description(), request.officialUrl());
+        Bootcamp bootcamp = Bootcamp.create(request.name(), slug, request.englishName(),
+            request.logoUrl(), request.description(), request.officialUrl());
 
         if (request.tracks() != null) {
             request.tracks().forEach(trackReq -> bootcamp.addTrack(toEntity(trackReq)));
@@ -95,8 +95,8 @@ public class DefaultBootcampService implements BootcampService {
 
         validateBootcampSlugDuplicate(slug.getValue(), id);
 
-        bootcamp.update(request.name(), slug, request.logoUrl(), request.description(),
-            request.officialUrl());
+        bootcamp.update(request.name(), slug, request.englishName(), request.logoUrl(),
+            request.description(), request.officialUrl());
 
         return BootcampResponse.from(bootcamp);
     }
@@ -106,9 +106,8 @@ public class DefaultBootcampService implements BootcampService {
     @Override
     @Transactional
     public void deleteBootcamp(Long id) {
-        if (!bootcampRepository.existsById(id)) {
-            throw new OpenBootCampException(ErrorCode.BOOTCAMP_NOT_FOUND);
-        }
+        validateBootcampExisting(id);
+
         bootcampRepository.deleteById(id);
     }
 

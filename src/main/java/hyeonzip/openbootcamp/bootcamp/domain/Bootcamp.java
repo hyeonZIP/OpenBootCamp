@@ -26,6 +26,9 @@ public class Bootcamp extends AbstractEntity {
     @Embedded
     private Slug slug;
 
+    @Column(unique = true, nullable = false)
+    private String englishName;
+
     private String logoUrl;
 
     @Column(length = 500)
@@ -37,30 +40,33 @@ public class Bootcamp extends AbstractEntity {
     private List<BootcampTrack> tracks = new ArrayList<>();
 
     @Builder
-    private Bootcamp(String name, Slug slug, String logoUrl, String description,
+    private Bootcamp(String name, Slug slug, String englishName, String logoUrl, String description,
         String officialUrl) {
         this.name = name;
         this.slug = slug;
+        this.englishName = englishName;
         this.logoUrl = logoUrl;
         this.description = description;
         this.officialUrl = officialUrl;
     }
 
-    public static Bootcamp create(String name, Slug slug, String logoUrl, String description,
-        String officialUrl) {
+    public static Bootcamp create(String name, Slug slug, String englishName, String logoUrl,
+        String description, String officialUrl) {
         return Bootcamp.builder()
             .name(name)
             .slug(slug)
+            .englishName(englishName)
             .logoUrl(logoUrl)
             .description(description)
             .officialUrl(officialUrl)
             .build();
     }
 
-    public void update(String name, Slug slug, String logoUrl, String description,
-        String officialUrl) {
+    public void update(String name, Slug slug, String englishName, String logoUrl,
+        String description, String officialUrl) {
         this.name = name;
         this.slug = slug;
+        this.englishName = englishName;
         this.logoUrl = logoUrl;
         this.description = description;
         this.officialUrl = officialUrl;
