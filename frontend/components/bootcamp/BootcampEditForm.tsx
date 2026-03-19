@@ -78,7 +78,7 @@ export default function BootcampEditForm({ bootcamp }: Props) {
 
   // 기본 정보 폼 상태
   const [name, setName] = useState(bootcamp.name);
-  const [englishName, setEnglishName] = useState("");
+  const [englishName, setEnglishName] = useState(bootcamp.englishName ?? "");
   const [logoUrl, setLogoUrl] = useState(bootcamp.logoUrl ?? "");
   const [description, setDescription] = useState(bootcamp.description ?? "");
   const [officialUrl, setOfficialUrl] = useState(bootcamp.officialUrl ?? "");
@@ -241,18 +241,30 @@ export default function BootcampEditForm({ bootcamp }: Props) {
           />
         </Field>
 
-        <Field label="영문명 (URL 슬러그)">
+        <Field label="영문명 *">
           <input
             type="text"
             required
             value={englishName}
             onChange={(e) => setEnglishName(e.target.value)}
-            placeholder="예) wecode"
+            placeholder="예) Wecode Pro"
             className={inputClass}
           />
-          <p className="text-xs text-gray-400">
-            현재 URL: /bootcamps/{bootcamp.slug} · 영문자, 숫자, 공백, 하이픈만 입력하세요.
-          </p>
+          <div className="flex flex-col gap-0.5">
+            <p className="text-xs text-gray-400">
+              영문자, 숫자, 공백, 하이픈만 입력 가능합니다.
+            </p>
+            <p className="text-xs text-gray-500">
+              URL 슬러그:{" "}
+              {toSlugPreview(englishName) ? (
+                <span className="font-mono font-medium text-gray-700">
+                  /bootcamps/{toSlugPreview(englishName)}
+                </span>
+              ) : (
+                <span className="text-gray-400">영문명을 입력하면 자동으로 생성됩니다</span>
+              )}
+            </p>
+          </div>
         </Field>
 
         <Field label="로고 URL">
@@ -554,6 +566,14 @@ function TrackInlineForm({
 }
 
 // ── 공통 헬퍼 ────────────────────────────────────────────────────────
+
+/** 백엔드 Slug.from() 로직과 동일하게 slug 미리보기 생성 */
+function toSlugPreview(englishName: string): string {
+  const normalized = englishName.normalize("NFD").replace(/[^\x00-\x7F]/g, "");
+  const lower = normalized.toLowerCase().trim();
+  const raw = lower.replace(/[^a-z0-9]+/g, "-");
+  return raw.replace(/^-+|-+$/g, "");
+}
 
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500";

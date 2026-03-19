@@ -38,6 +38,7 @@ export interface BootcampResponse {
   id: number;
   name: string;
   slug: string;
+  englishName: string;
   logoUrl: string | null;
   description: string | null;
   officialUrl: string | null;
