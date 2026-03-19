@@ -2,18 +2,16 @@ spring:
   application:
     name: OpenBootCamp
   profiles:
-    active: dev
+    active: dev,oauth
 
 server:
   port: 8080
 
 # ── 앱 커스텀 설정 (Phase 2에서 활성화) ─────────────────────────
 app:
+  cors:
+    allowed-origins: http://localhost:3000
   jwt:
     secret: ${JWT_SECRET:local-dev-secret-key-minimum-32-characters}
     access-token-expiry: 900000       # 15분 (ms)
     refresh-token-expiry: 604800000   # 7일 (ms)
-  github:
-    client-id: ${GITHUB_CLIENT_ID:}
-    client-secret: ${GITHUB_CLIENT_SECRET:}
-    token: ${GITHUB_TOKEN:}           # Rate Limit용 PAT
