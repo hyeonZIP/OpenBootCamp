@@ -1,42 +1,36 @@
 package hyeonzip.openbootcamp.bootcamp.domain;
 
-import hyeonzip.openbootcamp.bootcamp.domain.Slug;
-import hyeonzip.openbootcamp.common.enums.OperationType;
-import hyeonzip.openbootcamp.common.enums.TrackType;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import hyeonzip.openbootcamp.bootcamp.fixture.BootcampFixture;
+import hyeonzip.openbootcamp.bootcamp.fixture.BootcampRequestFixture;
+import hyeonzip.openbootcamp.bootcamp.fixture.BootcampTrackFixture;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BootcampTest {
 
     @Test
-    @DisplayName("빌더로 Bootcamp를 생성하면 필드가 올바르게 설정된다")
+    @DisplayName("정적 팩토리 메서드로 Bootcamp를 생성하면 필드가 올바르게 설정된다")
     void builder_setsFieldsCorrectly() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .logoUrl("https://logo.png")
-                .description("백엔드 부트캠프")
-                .officialUrl("https://wecode.co.kr")
-                .build();
+        var request = BootcampRequestFixture.createRequestWithTracks();
+        Bootcamp bootcamp = Bootcamp.create(request.name(), Slug.from(request.englishName()),
+            request.englishName(), request.logoUrl(), request.description(), request.officialUrl());
 
-        assertThat(bootcamp.getName()).isEqualTo("위코드");
-        assertThat(bootcamp.getSlug().getValue()).isEqualTo("wecode");
-        assertThat(bootcamp.getLogoUrl()).isEqualTo("https://logo.png");
-        assertThat(bootcamp.getDescription()).isEqualTo("백엔드 부트캠프");
-        assertThat(bootcamp.getOfficialUrl()).isEqualTo("https://wecode.co.kr");
+        assertThat(bootcamp.getName()).isEqualTo(request.name());
+        assertThat(bootcamp.getSlug().getValue()).isEqualTo(
+            Slug.from(request.englishName()).getValue());
+        assertThat(bootcamp.getEnglishName()).isEqualTo(request.englishName());
+        assertThat(bootcamp.getLogoUrl()).isEqualTo(request.logoUrl());
+        assertThat(bootcamp.getDescription()).isEqualTo(request.description());
+        assertThat(bootcamp.getOfficialUrl()).isEqualTo(request.officialUrl());
     }
 
     @Test
     @DisplayName("Bootcamp 생성 시 트랙 목록은 빈 리스트로 초기화된다")
     void builder_initializes_tracksAsEmptyList() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
 
         assertThat(bootcamp.getTracks()).isNotNull();
         assertThat(bootcamp.getTracks()).isEmpty();
@@ -45,34 +39,26 @@ class BootcampTest {
     @Test
     @DisplayName("update() 호출 시 모든 필드가 갱신된다")
     void update_updatesAllFields() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("원래이름")
-                .slug(Slug.from("original-slug"))
-                .logoUrl("https://old-logo.png")
-                .description("이전 설명")
-                .officialUrl("https://old.co.kr")
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
 
-        bootcamp.update("새이름", Slug.from("new-slug"), "https://new-logo.png", "새 설명", "https://new.co.kr");
+        var request = BootcampRequestFixture.updateRequest();
 
-        assertThat(bootcamp.getName()).isEqualTo("새이름");
-        assertThat(bootcamp.getSlug().getValue()).isEqualTo("new-slug");
-        assertThat(bootcamp.getLogoUrl()).isEqualTo("https://new-logo.png");
-        assertThat(bootcamp.getDescription()).isEqualTo("새 설명");
-        assertThat(bootcamp.getOfficialUrl()).isEqualTo("https://new.co.kr");
+        bootcamp.update(request.name(), Slug.from(request.englishName()), request.englishName(),
+            request.logoUrl(), request.description(), request.officialUrl());
+
+        assertThat(bootcamp.getName()).isEqualTo(request.name());
+        assertThat(bootcamp.getSlug().getValue()).isEqualTo(
+            Slug.from(request.englishName()).getValue());
+        assertThat(bootcamp.getLogoUrl()).isEqualTo(request.logoUrl());
+        assertThat(bootcamp.getDescription()).isEqualTo(request.description());
+        assertThat(bootcamp.getOfficialUrl()).isEqualTo(request.officialUrl());
     }
 
     @Test
     @DisplayName("addTrack() 호출 시 트랙이 목록에 추가된다")
     void addTrack_addsTrackToList() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .build();
-        BootcampTrack track = BootcampTrack.builder()
-                .trackType(TrackType.BACKEND)
-                .operationType(OperationType.ONLINE)
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
+        BootcampTrack track = BootcampTrackFixture.bootcampTrack();
 
         bootcamp.addTrack(track);
 
@@ -83,13 +69,8 @@ class BootcampTest {
     @Test
     @DisplayName("addTrack() 호출 시 트랙에 부트캠프 참조가 설정된다")
     void addTrack_assignsBootcampReference() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .build();
-        BootcampTrack track = BootcampTrack.builder()
-                .trackType(TrackType.FRONTEND)
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
+        BootcampTrack track = BootcampTrackFixture.bootcampTrack();
 
         bootcamp.addTrack(track);
 
@@ -99,30 +80,24 @@ class BootcampTest {
     @Test
     @DisplayName("addTrack()을 여러 번 호출하면 모든 트랙이 추가된다")
     void addTrack_multipleTracksAdded() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
+        BootcampTrack track = BootcampTrackFixture.bootcampTrack();
 
-        bootcamp.addTrack(BootcampTrack.builder().trackType(TrackType.BACKEND).build());
-        bootcamp.addTrack(BootcampTrack.builder().trackType(TrackType.FRONTEND).build());
-        bootcamp.addTrack(BootcampTrack.builder().trackType(TrackType.FULLSTACK).build());
+        int loopCount = 3;
+        for (int i = 0; i < loopCount; i++) {
+            bootcamp.addTrack(track);
+        }
 
-        assertThat(bootcamp.getTracks()).hasSize(3);
+        assertThat(bootcamp.getTracks()).hasSize(loopCount);
     }
 
     @Test
     @DisplayName("update() 호출 시 null 값으로도 갱신할 수 있다")
     void update_withNullValues() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .logoUrl("https://logo.png")
-                .description("설명")
-                .officialUrl("https://wecode.co.kr")
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
+        var request = BootcampRequestFixture.updateRequest();
 
-        bootcamp.update("위코드", Slug.from("wecode"), null, null, null);
+        bootcamp.update(request.name(), Slug.from(request.englishName()), null, null, null, null);
 
         assertThat(bootcamp.getLogoUrl()).isNull();
         assertThat(bootcamp.getDescription()).isNull();
@@ -130,15 +105,13 @@ class BootcampTest {
     }
 
     @Test
-    @DisplayName("빌더에서 name, slug만 설정해도 객체가 생성된다")
+    @DisplayName("빌더에서 name, slug, englishName만 설정해도 객체가 생성된다")
     void builder_withMinimalFields() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .build();
+        Bootcamp bootcamp = BootcampFixture.onlyNullableFieldBootcamp();
 
-        assertThat(bootcamp.getName()).isEqualTo("위코드");
-        assertThat(bootcamp.getSlug().getValue()).isEqualTo("wecode");
+        assertThat(bootcamp.getName()).isNotNull();
+        assertThat(bootcamp.getSlug().getValue()).isNotNull();
+        assertThat(bootcamp.getEnglishName()).isNotNull();
         assertThat(bootcamp.getLogoUrl()).isNull();
         assertThat(bootcamp.getDescription()).isNull();
         assertThat(bootcamp.getOfficialUrl()).isNull();
@@ -147,13 +120,9 @@ class BootcampTest {
     @Test
     @DisplayName("tracks 목록은 외부에서 직접 추가해도 반영된다 (컬렉션 참조 동일성)")
     void tracks_listReferenceIsSameAfterAddTrack() {
-        Bootcamp bootcamp = Bootcamp.builder()
-                .name("위코드")
-                .slug(Slug.from("wecode"))
-                .build();
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
         List<BootcampTrack> tracksRef = bootcamp.getTracks();
-        BootcampTrack track = BootcampTrack.builder().trackType(TrackType.BACKEND).build();
-
+        BootcampTrack track = BootcampTrackFixture.bootcampTrack();
         bootcamp.addTrack(track);
 
         assertThat(tracksRef).isSameAs(bootcamp.getTracks());

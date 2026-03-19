@@ -128,7 +128,7 @@ class BootcampControllerTest {
     @Test
     @DisplayName("POST /bootcamps - 201 등록 성공")
     void createBootcamp_returns201() throws Exception {
-        var request = BootcampRequestFixture.createRequest();
+        var request = BootcampRequestFixture.createOtherRequestWithTracks();
 
         mockMvc.perform(post("/api/v1/bootcamps")
                 .contentType(MediaType.APPLICATION_JSON)

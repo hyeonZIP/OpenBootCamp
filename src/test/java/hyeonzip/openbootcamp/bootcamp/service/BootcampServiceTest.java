@@ -58,7 +58,7 @@ class BootcampServiceTest {
     @Test
     @DisplayName("부트캠프 등록 성공")
     void createBootcamp_success() {
-        var request = BootcampRequestFixture.createRequest();
+        var request = BootcampRequestFixture.createOtherRequestWithTracks();
 
         BootcampResponse result = bootcampService.createBootcamp(request);
 
@@ -73,7 +73,7 @@ class BootcampServiceTest {
     @Test
     @DisplayName("트랙 없이 부트캠프 등록 성공")
     void createBootcamp_withoutTracks_success() {
-        var request = BootcampRequestFixture.createRequestWithTracksNull();
+        var request = BootcampRequestFixture.createOtherRequestWithTracksNull();
 
         BootcampResponse result = bootcampService.createBootcamp(request);
 
@@ -189,9 +189,9 @@ class BootcampServiceTest {
     @DisplayName("중복 영문명(slug)으로 수정 시 예외 발생")
     void updateBootcamp_duplicateSlug_throwsException() {
         var other = bootcampRepository.save(BootcampFixture.otherBootcamp());
-        var request = BootcampRequestFixture.invalidSlugRequest(other.getSlug().getValue());
+        var request = BootcampRequestFixture.invalidSlugRequest(savedBootcamp.getSlug().getValue());
 
-        assertThatThrownBy(() -> bootcampService.updateBootcamp(savedBootcamp.getId(), request))
+        assertThatThrownBy(() -> bootcampService.updateBootcamp(other.getId(), request))
             .isInstanceOf(OpenBootCampException.class)
             .hasMessage(ErrorCode.BOOTCAMP_SLUG_DUPLICATE.getMessage());
     }
