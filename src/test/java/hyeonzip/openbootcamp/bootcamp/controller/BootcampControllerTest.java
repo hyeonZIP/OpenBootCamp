@@ -89,6 +89,7 @@ class BootcampControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.name").value(savedBootcamp.getName()))
+            .andExpect(jsonPath("$.data.englishName").value(savedBootcamp.getEnglishName()))
             .andExpect(jsonPath("$.data.tracks").isArray())
             .andExpect(jsonPath("$.data.tracks[0].trackType").value(
                 savedBootcamp.getTracks().getFirst().getTrackType().name()));
@@ -110,6 +111,7 @@ class BootcampControllerTest {
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.name").value(savedBootcamp.getName()))
             .andExpect(jsonPath("$.data.slug").value(savedBootcamp.getSlug().getValue()))
+            .andExpect(jsonPath("$.data.englishName").value(savedBootcamp.getEnglishName()))
             .andExpect(jsonPath("$.data.tracks").isArray())
             .andExpect(jsonPath("$.data.tracks[0].trackType").value(
                 savedBootcamp.getTracks().getFirst().getTrackType().name()));
@@ -136,6 +138,7 @@ class BootcampControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.data.name").value(request.name()))
             .andExpect(jsonPath("$.data.slug").value(Slug.from(request.englishName()).getValue()))
+            .andExpect(jsonPath("$.data.englishName").value(request.englishName()))
             .andExpect(jsonPath("$.data.tracks[0].trackType").value(
                 request.tracks().getFirst().trackType().name()));
     }
@@ -260,6 +263,15 @@ class BootcampControllerTest {
             .andExpect(jsonPath("$.success").value(false));
     }
 
+    @Test
+    @DisplayName("GET /bootcamps/{id} - 응답에 englishName 포함, slug와 다른 값")
+    void getBootcamp_englishNameDiffersFromSlug() throws Exception {
+        mockMvc.perform(get("/api/v1/bootcamps/{id}", savedBootcamp.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.englishName").value(savedBootcamp.getEnglishName()))
+            .andExpect(jsonPath("$.data.slug").value(savedBootcamp.getSlug().getValue()));
+    }
+
     // ── 수정 ──────────────────────────────────────────────────────
 
     @Test
@@ -272,7 +284,8 @@ class BootcampControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.name").value(request.name()))
-            .andExpect(jsonPath("$.data.slug").value(Slug.from(request.englishName()).getValue()));
+            .andExpect(jsonPath("$.data.slug").value(Slug.from(request.englishName()).getValue()))
+            .andExpect(jsonPath("$.data.englishName").value(request.englishName()));
     }
 
     @Test

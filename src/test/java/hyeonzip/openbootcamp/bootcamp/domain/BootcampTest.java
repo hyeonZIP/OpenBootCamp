@@ -118,6 +118,30 @@ class BootcampTest {
     }
 
     @Test
+    @DisplayName("englishName은 slug와 달리 원본 문자열 그대로 저장된다")
+    void englishName_isPreservedAsIs_unlikeSlug() {
+        String rawEnglishName = "Code States Pro";
+        Bootcamp bootcamp = Bootcamp.create("코드스테이츠", Slug.from(rawEnglishName), rawEnglishName,
+            null, null, null);
+
+        assertThat(bootcamp.getEnglishName()).isEqualTo(rawEnglishName);
+        assertThat(bootcamp.getSlug().getValue()).isNotEqualTo(rawEnglishName);
+        assertThat(bootcamp.getSlug().getValue()).isEqualTo("code-states-pro");
+    }
+
+    @Test
+    @DisplayName("update() 호출 시 englishName도 갱신된다")
+    void update_updatesEnglishName() {
+        Bootcamp bootcamp = BootcampFixture.bootcamp();
+        var request = BootcampRequestFixture.updateRequest();
+
+        bootcamp.update(request.name(), Slug.from(request.englishName()), request.englishName(),
+            request.logoUrl(), request.description(), request.officialUrl());
+
+        assertThat(bootcamp.getEnglishName()).isEqualTo(request.englishName());
+    }
+
+    @Test
     @DisplayName("tracks 목록은 외부에서 직접 추가해도 반영된다 (컬렉션 참조 동일성)")
     void tracks_listReferenceIsSameAfterAddTrack() {
         Bootcamp bootcamp = BootcampFixture.bootcamp();

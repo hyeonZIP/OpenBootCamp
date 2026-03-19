@@ -65,6 +65,7 @@ class BootcampServiceTest {
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo(request.name());
         assertThat(result.slug()).isEqualTo(Slug.from(request.englishName()).getValue());
+        assertThat(result.englishName()).isEqualTo(request.englishName());
         assertThat(result.tracks()).hasSize(request.tracks().size());
         assertThat(result.tracks().getFirst().trackType()).isEqualTo(
             request.tracks().getFirst().trackType());
@@ -80,6 +81,17 @@ class BootcampServiceTest {
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo(request.name());
         assertThat(result.tracks()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("등록 시 englishName은 응답에 원본 그대로 포함된다")
+    void createBootcamp_englishNamePreservedInResponse() {
+        var request = BootcampRequestFixture.createOtherRequestWithTracks();
+
+        BootcampResponse result = bootcampService.createBootcamp(request);
+
+        assertThat(result.englishName()).isEqualTo(request.englishName());
+        assertThat(result.slug()).isNotEqualTo(request.englishName());
     }
 
     @Test
@@ -111,6 +123,7 @@ class BootcampServiceTest {
 
         assertThat(result.id()).isEqualTo(savedBootcamp.getId());
         assertThat(result.name()).isEqualTo(savedBootcamp.getName());
+        assertThat(result.englishName()).isEqualTo(savedBootcamp.getEnglishName());
         assertThat(result.tracks()).hasSize(savedBootcamp.getTracks().size());
         assertThat(result.tracks().getFirst().trackType()).isEqualTo(
             savedBootcamp.getTracks().getFirst().getTrackType());
@@ -132,6 +145,7 @@ class BootcampServiceTest {
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo(savedBootcamp.getName());
         assertThat(result.slug()).isEqualTo(savedBootcamp.getSlug().getValue());
+        assertThat(result.englishName()).isEqualTo(savedBootcamp.getEnglishName());
         assertThat(result.tracks()).hasSize(savedBootcamp.getTracks().size());
         assertThat(result.tracks().getFirst().trackType()).isEqualTo(
             savedBootcamp.getTracks().getFirst().getTrackType());
@@ -182,7 +196,19 @@ class BootcampServiceTest {
         assertThat(result.id()).isNotNull();
         assertThat(result.name()).isEqualTo(request.name());
         assertThat(result.slug()).isEqualTo(Slug.from(request.englishName()).getValue());
+        assertThat(result.englishName()).isEqualTo(request.englishName());
         assertThat(result.description()).isEqualTo(request.description());
+    }
+
+    @Test
+    @DisplayName("수정 시 englishName이 새 값으로 갱신되어 응답에 포함된다")
+    void updateBootcamp_englishNameUpdatedInResponse() {
+        var request = BootcampRequestFixture.updateRequest();
+
+        BootcampResponse result = bootcampService.updateBootcamp(savedBootcamp.getId(), request);
+
+        assertThat(result.englishName()).isEqualTo(request.englishName());
+        assertThat(result.englishName()).isNotEqualTo(savedBootcamp.getEnglishName());
     }
 
     @Test
