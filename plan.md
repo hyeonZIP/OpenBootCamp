@@ -748,6 +748,36 @@ tasks:
 
 ---
 
+---
+
+## Phase 2 완료 후 — 전체 소프트 삭제 전환
+
+> **목표**: PHASE2 백엔드 작업 완료 후, 전 도메인 하드 삭제 → 소프트 삭제 전환
+>
+> **배경**: `AbstractEntity`에 `active` 필드(기본값 true)를 이미 추가해 두었으나,
+> `Bootcamp` / `BootcampTrack` 등 기존 엔티티의 삭제 로직이 아직 하드 삭제(`deleteById`)로 동작 중.
+
+```
+tasks:
+- [ ] BootcampService.deleteBootcamp — deleteById() → bootcamp.deactivate() + flush
+- [ ] BootcampService.deleteTrack    — deleteById() → track.deactivate() + flush
+- [ ] BootcampRepository 조회 쿼리 전체에 WHERE active = true 조건 추가
+      - findById, findBySlug, findByFilters(페이징) 등
+- [ ] BootcampTrackRepository 조회 쿼리에 WHERE active = true 조건 추가
+- [ ] 이후 추가되는 모든 도메인(Project, BootcampReview 등)은
+      처음부터 소프트 삭제 방식으로 구현
+- [ ] 서비스 테스트: deleteBootcamp 후 existsById → false 대신
+      findById 결과의 active = false 로 검증 방식 변경
+- [ ] 컨트롤러 테스트: 삭제 후 GET 요청 시 404 반환 검증 유지
+      (서비스에서 active = false 항목을 not found 처리)
+```
+
+**주의사항**:
+- 현재 `BootcampServiceTest.deleteBootcamp_success`는 `existsById == false`로 검증 중 → 소프트 삭제 전환 시 검증 로직 수정 필요
+- 쿼리 필터 누락 시 비활성 데이터가 목록에 노출되는 버그 발생 가능 — 전환 시 전체 쿼리 점검 필수
+
+---
+
 > **이 파일 활용법**:
 > Claude Code에 작업을 요청할 때 해당 Phase와 섹션을 명시하면 일관된 코드 생성이 가능합니다.
 > 예시: `"plan.md Phase 3-1과 spec.md의 F-03을 참고하여 ProjectService.java를 작성해주세요."`
