@@ -1,25 +1,8 @@
 spring:
   application:
     name: OpenBootCamp
-
-  datasource:
-    url: jdbc:h2:mem:openbootcamp;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+  profiles:
+    active: dev
 
 server:
   port: 8080
@@ -34,10 +17,3 @@ app:
     client-id: ${GITHUB_CLIENT_ID:}
     client-secret: ${GITHUB_CLIENT_SECRET:}
     token: ${GITHUB_TOKEN:}           # Rate Limit용 PAT
-
-# ── 로깅 ─────────────────────────────────────────────────────────
-logging:
-  level:
-    hyeonzip.openbootcamp: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE  # Hibernate 7.x 파라미터 바인딩

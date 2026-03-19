@@ -11,9 +11,4 @@ public class OpenBootCampException extends RuntimeException {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
-
-    public OpenBootCampException(ErrorCode errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
-    }
 }

@@ -36,7 +36,6 @@
 ### 공통 / 인프라
 | 기술 | 용도 |
 |------|------|
-| Docker / Docker Compose | 로컬 환경 통합 실행 |
 | Vercel | 프론트엔드 배포 |
 | Railway 또는 AWS EC2 | 백엔드 배포 |
 | GitHub Actions | CI/CD |
@@ -143,24 +142,6 @@ npx shadcn@latest add button card badge input label
 
 ---
 
-### 0-3. Docker Compose 설정
-
-```yaml
-# 실제 생성된 docker-compose.yml 참고
-# backend context: . (루트 = 백엔드)
-# frontend context: ./frontend
-# backend healthcheck 후 frontend 기동 (depends_on)
-```
-
-- [x] Dockerfile (백엔드 — 루트, eclipse-temurin:25, 멀티스테이지)
-- [x] frontend/Dockerfile (프론트엔드 — node:22-alpine, standalone 모드)
-- [x] docker-compose.yml (healthcheck, depends_on, 환경변수 주입)
-- [x] next.config.ts output: "standalone" 설정
-
-**완료 기준**: `http://localhost:3000` 접속 시 메인 페이지 표시, `http://localhost:8080/api/v1/health` → `{ "success": true }` 응답
-
----
-
 ## Phase 1 — 부트캠프 CRUD
 
 > **목표**: 부트캠프를 등록·조회·수정·삭제할 수 있는 가장 기본적인 기능
@@ -225,25 +206,34 @@ public class BootcampTrack {
 ```
 
 ```
-tasks:
-- [ ] Enum 작성: TrackType, OperationType, TechStack, ProjectStatus, Role
-      (spec.md 7-2 Enum 정의 참고)
-- [ ] Bootcamp 엔티티
-- [ ] BootcampTrack 엔티티 (@ManyToOne Bootcamp)
-- [ ] BootcampRepository, BootcampTrackRepository
-- [ ] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제)
-- [ ] BootcampController
-      - GET  /api/v1/bootcamps          (목록, 페이징)
-      - GET  /api/v1/bootcamps/{id}     (상세 — tracks 포함)
-      - POST /api/v1/bootcamps          (등록, 인증 없이 허용 — Phase 2에서 권한 추가)
-      - PUT  /api/v1/bootcamps/{id}     (수정)
-      - DELETE /api/v1/bootcamps/{id}  (삭제)
+# Domain 레이어
+- [x] Enum 작성: TrackType, OperationType, TechStack, ProjectStatus, Role
+- [x] Bootcamp 엔티티 (@EnableJpaAuditing, @CreatedDate, @LastModifiedDate)
+- [x] BootcampTrack 엔티티 (@ManyToOne Bootcamp)
+- [x] Domain 단위 테스트 (BootcampTest, BootcampTrackTest)
+
+# Repository 레이어
+- [x] BootcampRepository, BootcampTrackRepository
+- [x] Repository 단위 테스트 (BootcampRepositoryTest — 13케이스, BootcampTrackRepositoryTest — 2케이스)
+
+# Service 레이어
+- [x] 슬러그 자동 생성 유틸 (SlugUtils — kebab-case, 중복 시 suffix)
+- [x] BootcampDto / BootcampTrackDto (Request/Response — Java Record)
+- [x] BootcampService (부트캠프 + 트랙 함께 등록/수정/삭제, Specification 필터링)
+- [x] Service 단위 테스트 (BootcampServiceTest — 17케이스)
+
+# Controller 레이어
+- [x] BootcampController
+      - GET  /api/v1/bootcamps               (목록, 페이징)
+      - GET  /api/v1/bootcamps/{id}          (ID로 단건 조회 — tracks 포함)
+      - GET  /api/v1/bootcamps/slug/{slug}   (slug로 단건 조회 — tracks 포함)
+      - POST /api/v1/bootcamps               (등록, 인증 없이 허용 — Phase 2에서 권한 추가)
+      - PUT  /api/v1/bootcamps/{id}          (수정)
+      - DELETE /api/v1/bootcamps/{id}        (삭제)
       - POST /api/v1/bootcamps/{id}/tracks       (트랙 추가)
       - PUT  /api/v1/bootcamps/{id}/tracks/{trackId}  (트랙 수정)
       - DELETE /api/v1/bootcamps/{id}/tracks/{trackId} (트랙 삭제)
-- [ ] BootcampDto / BootcampTrackDto (Request/Response)
-- [ ] 슬러그 자동 생성 유틸 (이름 → kebab-case)
-- [ ] 단위 테스트 (BootcampServiceTest)
+- [x] Controller 통합 테스트 (BootcampControllerTest — 16케이스)
 ```
 
 **쿼리 파라미터** (`GET /bootcamps`):
@@ -257,18 +247,51 @@ tasks:
 
 ```
 tasks:
-- [ ] Bootcamp 타입 정의 (types/bootcamp.ts)
-- [ ] bootcamp API 함수 (api/bootcamp.ts)
-- [ ] 부트캠프 탐색 페이지 /bootcamps
+- [x] Bootcamp 타입 정의 (lib/types.ts)
+- [x] bootcamp API 함수 (lib/bootcampApi.ts)
+- [x] 부트캠프 탐색 페이지 /bootcamps
       - 카드 그리드 (BootcampCard 컴포넌트)
       - 기본 페이지네이션
-- [ ] 부트캠프 상세 페이지 /bootcamps/[id]
+- [x] 부트캠프 상세 페이지 /bootcamps/[id]
       - 기본 정보 표시
-- [ ] 부트캠프 등록 페이지 /bootcamps/new (임시 — 인증 없이)
+- [x] 부트캠프 등록 페이지 /bootcamps/new (임시 — 인증 없이)
       - 폼 (이름, 설명, 운영형태, 트랙)
+
+# Slug 기반 라우팅 전환
+- [x] 백엔드가 제공하는 slug 필드를 활용하여 URL 구조 변경
+      - /bootcamps/[id] → /bootcamps/[slug] 로 라우트 변경
+      - BootcampCard의 링크를 slug 기반으로 변경 (href={`/bootcamps/${bootcamp.slug}`})
+      - bootcampApi.ts에 getBootcampBySlug(slug) 함수 추가
+        (GET /api/v1/bootcamps/slug/{slug} 백엔드 엔드포인트 활용)
+      - 부트캠프 등록/수정 완료 후 리다이렉트를 slug 기반으로 변경
+
+# 부트캠프 수정/삭제
+- [x] 부트캠프 수정 페이지 /bootcamps/[slug]/edit
+      - 기존 데이터 prefill (서버 컴포넌트에서 slug로 조회 후 클라이언트 폼에 전달)
+      - [기본 정보 저장] 버튼 → PUT /api/v1/bootcamps/{id} 호출 → 성공 시 상세 페이지로 이동
+- [x] 부트캠프 삭제 기능
+      - 상세 페이지에 [삭제] 버튼 배치 (DeleteBootcampButton 클라이언트 컴포넌트)
+      - 삭제 확인 모달 다이얼로그
+      - DELETE /api/v1/bootcamps/{id} 호출 → 성공 시 /bootcamps로 이동
+- [x] 부트캠프 상세 페이지에 [수정] / [삭제] 버튼 추가 (임시 — 인증 없이 표시)
+
+# 트랙 관리 UI
+- [x] 부트캠프 수정 페이지에 트랙 관리 섹션 추가
+      - 현재 등록된 트랙 목록 표시 (trackType, operationType, techStacks, 가격, 기간, 모집여부)
+      - [트랙 추가] 버튼 → 인라인 폼 열기
+        입력 필드: trackType(선택), operationType(선택), techStacks(다중 선택),
+                   priceMin, priceMax, durationWeeks, isRecruiting(체크박스)
+        → POST /api/v1/bootcamps/{id}/tracks 호출
+      - 트랙 항목마다 [수정] 버튼
+        → 해당 트랙 값으로 인라인 폼 초기화 → 수정 후 PUT /api/v1/bootcamps/{id}/tracks/{trackId}
+      - 트랙 항목마다 [삭제] 버튼
+        → DELETE /api/v1/bootcamps/{id}/tracks/{trackId} → 로컬 상태 즉시 반영
+      - 트랙 추가/수정/삭제 완료 후 트랙 목록 자동 갱신 (로컬 state 업데이트)
+- [x] 부트캠프 상세 페이지의 트랙 목록에 트랙 정보 상세 표시
+      - 각 트랙: trackType 배지, operationType 배지, techStacks 태그, 가격 범위, 기간, 모집 상태
 ```
 
-**완료 기준**: 브라우저에서 부트캠프 등록 → 목록 조회 → 상세 조회 → 수정 → 삭제 가능
+**완료 기준**: 브라우저에서 부트캠프 등록(slug 자동생성 확인) → 목록 조회(slug 기반 링크) → 상세 조회(트랙 상세 표시) → 수정(트랙 추가/수정/삭제 포함) → 삭제 가능
 
 ---
 
@@ -692,23 +715,7 @@ tasks:
 
 ---
 
-### 7-2. 배포
-
-```
-tasks:
-- [ ] Backend Dockerfile 작성
-- [ ] GitHub Actions CI 설정 (.github/workflows/ci.yml)
-      - PR 시 테스트 실행
-      - main 머지 시 Docker 이미지 빌드 + Railway/EC2 배포
-- [ ] Frontend Vercel 연결
-      - 환경변수 설정 (NEXTAUTH_SECRET, NEXT_PUBLIC_API_URL)
-- [ ] 도메인 연결 (선택)
-- [ ] 환경변수 관리 (.env.example 문서화)
-```
-
----
-
-### 7-3. 성능 및 UX
+### 7-2. 성능 및 UX
 
 ```
 tasks:
@@ -738,30 +745,6 @@ tasks:
 | 4 | Private 레포 연동 | GitHub App 권한 위임으로 Private PR 수집 |
 | 5 | 추천 알고리즘 | 열람 이력 기반 추천 |
 
----
-
-## 전체 타임라인
-
-```
-Week 1    Week 2    Week 3    Week 4    Week 5    Week 6    Week 7+
-│         │         │         │         │         │         │
-├─Phase 0─┤         │         │         │         │         │
-│ 초기설정 │         │         │         │         │         │
-│    ├─Phase 1─────┤         │         │         │         │
-│    │ 부트캠프CRUD│         │         │         │         │
-│    │    ├─Phase 2─────────┤         │         │         │
-│    │    │ 인증/로그인      │         │         │         │
-│    │    │    ├─Phase 3──────────────┤         │         │
-│    │    │    │ 프로젝트+GitHub연동  │         │         │
-│    │    │    │    ├─Phase 4──────────────────┤         │
-│    │    │    │    │ 코드리뷰 수집/열람        │         │
-│    │    │    │    │    ├─Phase 5─────────────────────┤  │
-│    │    │    │    │    │ 비교+리뷰             │  │
-│    │    │    │    │    │         ├─Phase 6──────────┤│
-│    │    │    │    │    │         │마이페이지/대시보드││
-│    │    │    │    │    │         │       ├─Phase 7──┤│
-│    │    │    │    │    │         │       │ 프로덕션  ││
-```
 
 ---
 

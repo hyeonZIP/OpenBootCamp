@@ -16,6 +16,7 @@ public enum ErrorCode {
     // ── Bootcamp ─────────────────────────────────────────────────
     BOOTCAMP_NOT_FOUND("존재하지 않는 부트캠프입니다.", HttpStatus.NOT_FOUND),
     BOOTCAMP_SLUG_DUPLICATE("이미 사용 중인 부트캠프 슬러그입니다.", HttpStatus.CONFLICT),
+    BOOTCAMP_NAME_DUPLICATE("이미 사용 중인 부트캠프 이름입니다.", HttpStatus.CONFLICT),
 
     // ── Project ──────────────────────────────────────────────────
     PROJECT_NOT_FOUND("존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
