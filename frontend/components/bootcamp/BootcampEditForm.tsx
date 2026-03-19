@@ -100,7 +100,7 @@ export default function BootcampEditForm({ bootcamp }: Props) {
   const [trackErrorMsg, setTrackErrorMsg] = useState<string | null>(null);
 
   // ── 기본 정보 저장 ──────────────────────────────────────────────
-  const handleSaveBasicInfo = async (e: React.FormEvent) => {
+  const handleSaveBasicInfo = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setSubmitting(true);
