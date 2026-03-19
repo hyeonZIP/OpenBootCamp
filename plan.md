@@ -323,7 +323,7 @@ public class User {
 
 ```
 tasks:
-- [ ] User 엔티티 + Role Enum
+- [x] User 엔티티 + Role Enum
 - [ ] UserRepository
 - [ ] GitHub OAuth2 설정
       - GitHub App / OAuth App 생성 (Callback: /api/v1/auth/github/callback)
