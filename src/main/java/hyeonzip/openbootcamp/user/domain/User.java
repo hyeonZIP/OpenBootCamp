@@ -1,7 +1,6 @@
 package hyeonzip.openbootcamp.user.domain;
 
 import hyeonzip.openbootcamp.common.entity.AbstractEntity;
-import hyeonzip.openbootcamp.common.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

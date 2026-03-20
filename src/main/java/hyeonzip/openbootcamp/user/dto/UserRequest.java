@@ -1,6 +1,6 @@
 package hyeonzip.openbootcamp.user.dto;
 
-import hyeonzip.openbootcamp.common.enums.Role;
+import hyeonzip.openbootcamp.user.domain.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -2,7 +2,6 @@ package hyeonzip.openbootcamp.user.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import hyeonzip.openbootcamp.common.enums.Role;
 import hyeonzip.openbootcamp.user.fixture.UserFixture;
 import hyeonzip.openbootcamp.user.fixture.UserRequestFixture;
 import org.junit.jupiter.api.DisplayName;

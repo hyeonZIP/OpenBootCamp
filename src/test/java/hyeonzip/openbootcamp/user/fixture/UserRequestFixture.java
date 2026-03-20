@@ -1,6 +1,6 @@
 package hyeonzip.openbootcamp.user.fixture;
 
-import hyeonzip.openbootcamp.common.enums.Role;
+import hyeonzip.openbootcamp.user.domain.Role;
 import hyeonzip.openbootcamp.user.dto.UserRequest;
 
 public final class UserRequestFixture {

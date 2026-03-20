@@ -1,6 +1,6 @@
 package hyeonzip.openbootcamp.common.config;
 
-import hyeonzip.openbootcamp.common.enums.Role;
+import hyeonzip.openbootcamp.user.domain.Role;
 import hyeonzip.openbootcamp.common.security.JwtAuthenticationFilter;
 import hyeonzip.openbootcamp.common.security.OAuth2AuthenticationSuccessHandler;
 import java.util.List;
