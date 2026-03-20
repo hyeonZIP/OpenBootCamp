@@ -1,0 +1,101 @@
+package hyeonzip.openbootcamp.common.config;
+
+import hyeonzip.openbootcamp.common.enums.Role;
+import hyeonzip.openbootcamp.common.security.JwtAuthenticationFilter;
+import hyeonzip.openbootcamp.common.security.OAuth2AuthenticationSuccessHandler;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+
+                // ── [PUBLIC] 비로그인 허용 ─────────────────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/v1/auth/github/callback").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/bootcamps/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/projects/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/pull-requests/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+                // H2 콘솔 (개발 편의)
+                .requestMatchers("/h2-console/**").permitAll()
+
+                // ── [ADMIN] 플랫폼 관리자 전용 ────────────────────────────────
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/bootcamps/**").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/github/rate-limit").hasRole(Role.ADMIN.name())
+
+                // ── [BOOTCAMP_ADMIN] 운영사 이상 ──────────────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/v1/bootcamps/**")
+                .hasAnyRole(Role.BOOTCAMP_ADMIN.name(), Role.ADMIN.name())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/bootcamps/**")
+                .hasAnyRole(Role.BOOTCAMP_ADMIN.name(), Role.ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/admin/bootcamp/dashboard")
+                .hasAnyRole(Role.BOOTCAMP_ADMIN.name(), Role.ADMIN.name())
+
+                // ── [AUTH] 로그인 필요 ─────────────────────────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/projects/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/projects/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/projects/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/reviews/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/reviews/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/reviews/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/me/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/users/me/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/github/sync/**").authenticated()
+
+                .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(allowedOrigins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", config);
+        return source;
+    }
+}
