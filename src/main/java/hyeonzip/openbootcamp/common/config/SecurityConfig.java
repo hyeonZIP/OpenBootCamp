@@ -1,13 +1,14 @@
 package hyeonzip.openbootcamp.common.config;
 
-import hyeonzip.openbootcamp.user.domain.Role;
 import hyeonzip.openbootcamp.common.security.JwtAuthenticationFilter;
 import hyeonzip.openbootcamp.common.security.OAuth2AuthenticationSuccessHandler;
+import hyeonzip.openbootcamp.user.domain.Role;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+@Profile("!test")
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -50,10 +52,12 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
 
                 // ── [ADMIN] 플랫폼 관리자 전용 ────────────────────────────────
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/bootcamps/**").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/bootcamps/**")
+                .hasRole(Role.ADMIN.name())
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasRole(Role.ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasRole(Role.ADMIN.name())
-                .requestMatchers(HttpMethod.GET, "/api/v1/github/rate-limit").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/github/rate-limit")
+                .hasRole(Role.ADMIN.name())
 
                 // ── [BOOTCAMP_ADMIN] 운영사 이상 ──────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/v1/bootcamps/**")
