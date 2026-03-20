@@ -748,11 +748,16 @@ tasks:
 
 ---
 
+## 후순위 / 리팩토링 작업
+
+> 각 Phase의 핵심 구현이 완료된 이후에 진행하는 작업들입니다.
+> 상단 항목일수록 먼저 진행하고, 하단으로 갈수록 우선순위가 낮습니다.
+
 ---
 
-## Phase 2 완료 후 — 전체 소프트 삭제 전환
+### [Phase 2 완료 후] 전체 소프트 삭제 전환
 
-> **목표**: PHASE2 백엔드 작업 완료 후, 전 도메인 하드 삭제 → 소프트 삭제 전환
+> **목표**: PHASE 2 백엔드 작업 완료 후, 전 도메인 하드 삭제 → 소프트 삭제 전환
 >
 > **배경**: `AbstractEntity`에 `active` 필드(기본값 true)를 이미 추가해 두었으나,
 > `Bootcamp` / `BootcampTrack` 등 기존 엔티티의 삭제 로직이 아직 하드 삭제(`deleteById`)로 동작 중.
@@ -775,6 +780,29 @@ tasks:
 **주의사항**:
 - 현재 `BootcampServiceTest.deleteBootcamp_success`는 `existsById == false`로 검증 중 → 소프트 삭제 전환 시 검증 로직 수정 필요
 - 쿼리 필터 누락 시 비활성 데이터가 목록에 노출되는 버그 발생 가능 — 전환 시 전체 쿼리 점검 필수
+
+---
+
+### [최후순위] Spring Boot 4 API Versioning 적용
+
+> **목표**: Spring Boot 4에서 공식 지원하는 API Versioning 기능을 적용하여 `/api/v1/` 경로 관리를 프레임워크 수준으로 위임
+>
+> **배경**: 현재는 `@RequestMapping("/api/v1/...")` 방식으로 경로에 버전을 직접 하드코딩 중.
+> Spring Boot 4에서 `ApiVersionRequestMappingHandlerMapping`이 추가되어 어노테이션 기반 버전 관리가 가능해짐.
+
+```
+tasks:
+- [ ] Spring Boot 4 API Versioning 설정 추가
+      - application.yml에 spring.mvc.pathmatch.api-version 설정
+- [ ] 전체 Controller에서 @RequestMapping 경로의 /api/v1 접두사 제거
+      - @ApiVersion("1") 어노테이션으로 대체
+- [ ] SecurityConfig 경로 패턴도 버전 설정에 맞게 수정
+- [ ] Controller 통합 테스트 경로 확인 및 수정
+```
+
+**참고**:
+- 현재 모든 Controller가 `/api/v1/...` 패턴을 직접 명시하므로 변경 범위가 전체 도메인에 걸침
+- 모든 Phase 완료 후 일괄 적용 권장
 
 ---
 
