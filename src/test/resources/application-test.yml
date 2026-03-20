@@ -12,7 +12,14 @@ spring:
       hibernate:
         format_sql: true
     show-sql: false
-
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  frontend-url: http://localhost:3000
+  jwt:
+    secret: 1q2w3e4r!!or@@
+    access-token-expiry: 900000       # 15분 (ms)
+    refresh-token-expiry: 604800000   # 7일 (ms)
 logging:
   level:
     hyeonzip.openbootcamp: DEBUG
