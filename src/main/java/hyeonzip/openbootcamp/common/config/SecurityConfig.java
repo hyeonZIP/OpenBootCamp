@@ -2,6 +2,7 @@ package hyeonzip.openbootcamp.common.config;
 
 import hyeonzip.openbootcamp.common.security.JwtAuthenticationFilter;
 import hyeonzip.openbootcamp.common.security.OAuth2AuthenticationSuccessHandler;
+import hyeonzip.openbootcamp.common.security.oauth2.CustomOAuth2UserService;
 import hyeonzip.openbootcamp.user.domain.Role;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -53,19 +55,19 @@ public class SecurityConfig {
 
                 // ── [ADMIN] 플랫폼 관리자 전용 ────────────────────────────────
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/bootcamps/**")
-                .hasRole(Role.ADMIN.name())
-                .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasRole(Role.ADMIN.name())
-                .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasRole(Role.ADMIN.name())
+                .hasAuthority(Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasAuthority(Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasAuthority(Role.ADMIN.getAuthority())
                 .requestMatchers(HttpMethod.GET, "/api/v1/github/rate-limit")
-                .hasRole(Role.ADMIN.name())
+                .hasAuthority(Role.ADMIN.getAuthority())
 
                 // ── [BOOTCAMP_ADMIN] 운영사 이상 ──────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/v1/bootcamps/**")
-                .hasAnyRole(Role.BOOTCAMP_ADMIN.name(), Role.ADMIN.name())
+                .hasAnyAuthority(Role.BOOTCAMP_ADMIN.getAuthority(), Role.ADMIN.getAuthority())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/bootcamps/**")
-                .hasAnyRole(Role.BOOTCAMP_ADMIN.name(), Role.ADMIN.name())
+                .hasAnyAuthority(Role.BOOTCAMP_ADMIN.getAuthority(), Role.ADMIN.getAuthority())
                 .requestMatchers(HttpMethod.GET, "/api/v1/admin/bootcamp/dashboard")
-                .hasAnyRole(Role.BOOTCAMP_ADMIN.name(), Role.ADMIN.name())
+                .hasAnyAuthority(Role.BOOTCAMP_ADMIN.getAuthority(), Role.ADMIN.getAuthority())
 
                 // ── [AUTH] 로그인 필요 ─────────────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
@@ -83,6 +85,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService))
                 .successHandler(oAuth2AuthenticationSuccessHandler)
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
