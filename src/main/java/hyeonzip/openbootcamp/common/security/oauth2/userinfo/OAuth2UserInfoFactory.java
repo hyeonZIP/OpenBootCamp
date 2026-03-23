@@ -1,4 +1,4 @@
-package hyeonzip.openbootcamp.common.security.oauth2;
+package hyeonzip.openbootcamp.common.security.oauth2.userinfo;
 
 import hyeonzip.openbootcamp.common.exception.ErrorCode;
 import hyeonzip.openbootcamp.common.exception.OpenBootCampException;

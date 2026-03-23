@@ -1,5 +1,6 @@
 package hyeonzip.openbootcamp.common.security.oauth2;
 
+import hyeonzip.openbootcamp.common.security.oauth2.userinfo.OAuth2UserInfo;
 import hyeonzip.openbootcamp.user.domain.Role;
 import java.util.Collection;
 import java.util.List;

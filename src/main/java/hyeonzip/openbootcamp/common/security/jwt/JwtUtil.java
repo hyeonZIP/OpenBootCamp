@@ -1,4 +1,4 @@
-package hyeonzip.openbootcamp.common.security;
+package hyeonzip.openbootcamp.common.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package hyeonzip.openbootcamp.common.security;
+package hyeonzip.openbootcamp.common.security.jwt;
 
 import hyeonzip.openbootcamp.user.domain.Role;
 import jakarta.servlet.FilterChain;

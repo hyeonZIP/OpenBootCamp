@@ -1,4 +1,4 @@
-package hyeonzip.openbootcamp.common.security.oauth2;
+package hyeonzip.openbootcamp.common.security.oauth2.userinfo;
 
 import java.util.Map;
 

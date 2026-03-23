@@ -1,7 +1,7 @@
 package hyeonzip.openbootcamp.common.config;
 
-import hyeonzip.openbootcamp.common.security.JwtAuthenticationFilter;
-import hyeonzip.openbootcamp.common.security.OAuth2AuthenticationSuccessHandler;
+import hyeonzip.openbootcamp.common.security.jwt.JwtAuthenticationFilter;
+import hyeonzip.openbootcamp.common.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import hyeonzip.openbootcamp.common.security.oauth2.CustomOAuth2UserService;
 import hyeonzip.openbootcamp.user.domain.Role;
 import java.util.List;

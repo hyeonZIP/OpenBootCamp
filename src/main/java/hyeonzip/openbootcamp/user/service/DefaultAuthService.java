@@ -2,7 +2,7 @@ package hyeonzip.openbootcamp.user.service;
 
 import hyeonzip.openbootcamp.common.exception.ErrorCode;
 import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
-import hyeonzip.openbootcamp.common.security.oauth2.OAuth2UserInfo;
+import hyeonzip.openbootcamp.common.security.oauth2.userinfo.OAuth2UserInfo;
 import hyeonzip.openbootcamp.user.domain.Role;
 import hyeonzip.openbootcamp.user.domain.User;
 import hyeonzip.openbootcamp.user.repository.UserRepository;

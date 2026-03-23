@@ -1,5 +1,6 @@
-package hyeonzip.openbootcamp.common.security;
+package hyeonzip.openbootcamp.common.security.oauth2.handler;
 
+import hyeonzip.openbootcamp.common.security.jwt.JwtUtil;
 import hyeonzip.openbootcamp.common.security.oauth2.CustomOAuth2User;
 import hyeonzip.openbootcamp.user.domain.User;
 import hyeonzip.openbootcamp.user.service.ports.inp.AuthService;

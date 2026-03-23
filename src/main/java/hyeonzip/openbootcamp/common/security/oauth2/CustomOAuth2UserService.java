@@ -1,5 +1,7 @@
 package hyeonzip.openbootcamp.common.security.oauth2;
 
+import hyeonzip.openbootcamp.common.security.oauth2.userinfo.OAuth2UserInfo;
+import hyeonzip.openbootcamp.common.security.oauth2.userinfo.OAuth2UserInfoFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
