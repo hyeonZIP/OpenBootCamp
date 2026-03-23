@@ -1,24 +1,57 @@
 package hyeonzip.openbootcamp.common.security;
 
+import hyeonzip.openbootcamp.user.domain.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/**
- * JWT 토큰을 검증하고 SecurityContext에 인증 정보를 등록하는 필터.
- * TODO: JwtUtil 구현 후 내부 로직 완성
- */
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
-        // TODO: Authorization 헤더에서 Bearer 토큰 추출 → 검증 → SecurityContext 등록
+
+        String token = extractTokenFromCookie(request);
+
+        if (token != null && jwtUtil.isTokenValid(token)) {
+            Long userId = jwtUtil.getUserId(token);
+            String role = jwtUtil.getRole(token);
+
+            UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                    userId, null,
+                    List.of(new SimpleGrantedAuthority(Role.valueOf(role).getAuthority()))
+                );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
         filterChain.doFilter(request, response);
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if ("accessToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }
