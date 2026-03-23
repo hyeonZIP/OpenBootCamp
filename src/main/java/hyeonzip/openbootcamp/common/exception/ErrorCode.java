@@ -22,9 +22,15 @@ public enum ErrorCode {
     PROJECT_NOT_FOUND("존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
     PROJECT_UNAUTHORIZED("본인의 프로젝트만 수정/삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
 
+    // ── Auth ─────────────────────────────────────────────────────
+    UNSUPPORTED_OAUTH2_PROVIDER("지원하지 않는 OAuth2 제공자입니다.", HttpStatus.BAD_REQUEST),
+
     // ── GitHub ───────────────────────────────────────────────────
     GITHUB_API_ERROR("GitHub API 호출 중 오류가 발생했습니다.", HttpStatus.BAD_GATEWAY),
     GITHUB_REPO_NOT_FOUND("GitHub 레포지토리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    // ── User ─────────────────────────────────────────────────────
+    USER_NOT_FOUND("존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND),
 
     // ── Review ───────────────────────────────────────────────────
     REVIEW_NOT_FOUND("존재하지 않는 리뷰입니다.", HttpStatus.NOT_FOUND),
