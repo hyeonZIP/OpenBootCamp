@@ -1,11 +1,17 @@
 package hyeonzip.openbootcamp.common.security.oauth2.userinfo;
 
+import hyeonzip.openbootcamp.user.domain.OAuthProvider;
 import java.util.Map;
 
 public class GithubOAuth2UserInfo extends OAuth2UserInfo {
 
     public GithubOAuth2UserInfo(Map<String, Object> attributes) {
         super(attributes);
+    }
+
+    @Override
+    public OAuthProvider getProvider() {
+        return OAuthProvider.GITHUB;
     }
 
     @Override

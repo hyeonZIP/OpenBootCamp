@@ -2,7 +2,6 @@ package hyeonzip.openbootcamp.user.fixture;
 
 import static hyeonzip.openbootcamp.user.fixture.UserRequestFixture.AVATAR_URL;
 import static hyeonzip.openbootcamp.user.fixture.UserRequestFixture.EMAIL;
-import static hyeonzip.openbootcamp.user.fixture.UserRequestFixture.GITHUB_ID;
 import static hyeonzip.openbootcamp.user.fixture.UserRequestFixture.ROLE;
 import static hyeonzip.openbootcamp.user.fixture.UserRequestFixture.USERNAME;
 
@@ -14,6 +13,6 @@ public final class UserFixture {
     }
 
     public static User user() {
-        return User.create(GITHUB_ID, USERNAME, EMAIL, AVATAR_URL, ROLE);
+        return User.create(USERNAME, EMAIL, AVATAR_URL, ROLE);
     }
 }

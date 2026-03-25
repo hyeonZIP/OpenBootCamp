@@ -8,9 +8,6 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 
 public record UserRequest(
-    @NotBlank(message = "GitHub ID는 필수입니다.")
-    String githubId,
-
     @NotBlank(message = "사용자명은 필수입니다.")
     @Length(max = 50, message = "사용자명은 50자 이하여야 합니다.")
     String username,

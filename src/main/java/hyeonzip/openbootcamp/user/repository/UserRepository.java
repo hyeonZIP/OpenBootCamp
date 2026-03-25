@@ -1,10 +1,8 @@
 package hyeonzip.openbootcamp.user.repository;
 
 import hyeonzip.openbootcamp.user.domain.User;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByGithubId(String githubId);
 }

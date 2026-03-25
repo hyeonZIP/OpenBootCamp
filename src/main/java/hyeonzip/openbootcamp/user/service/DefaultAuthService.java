@@ -5,6 +5,8 @@ import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
 import hyeonzip.openbootcamp.common.security.oauth2.userinfo.OAuth2UserInfo;
 import hyeonzip.openbootcamp.user.domain.Role;
 import hyeonzip.openbootcamp.user.domain.User;
+import hyeonzip.openbootcamp.user.domain.UserOAuth;
+import hyeonzip.openbootcamp.user.repository.UserOAuthRepository;
 import hyeonzip.openbootcamp.user.repository.UserRepository;
 import hyeonzip.openbootcamp.user.service.ports.inp.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +19,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultAuthService implements AuthService {
 
     private final UserRepository userRepository;
+    private final UserOAuthRepository userOAuthRepository;
 
     @Override
     @Transactional
     public User upsertFromOAuth2(OAuth2UserInfo userInfo) {
-        return userRepository.findByGithubId(userInfo.getId())
-            .map(user -> {
-                user.updateProfile(userInfo.getUsername(), userInfo.getEmail(),
+        return userOAuthRepository.findByProviderAndProviderId(userInfo.getProvider(),
+                userInfo.getId())
+            .map(oauth -> {
+                oauth.getUser().updateProfile(userInfo.getUsername(), userInfo.getEmail(),
                     userInfo.getAvatarUrl());
-                return user;
+                return oauth.getUser();
             })
-            .orElseGet(() -> userRepository.save(
-                User.create(userInfo.getId(), userInfo.getUsername(), userInfo.getEmail(),
-                    userInfo.getAvatarUrl(), Role.STUDENT)
-            ));
+            .orElseGet(() -> {
+                User user = userRepository.save(
+                    User.create(userInfo.getUsername(), userInfo.getEmail(),
+                        userInfo.getAvatarUrl(), Role.STUDENT)
+                );
+                userOAuthRepository.save(
+                    UserOAuth.create(user, userInfo.getProvider(), userInfo.getId())
+                );
+                return user;
+            });
     }
 
     @Override

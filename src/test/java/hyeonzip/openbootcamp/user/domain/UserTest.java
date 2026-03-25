@@ -14,10 +14,9 @@ class UserTest {
     void create_setsFieldsFromRequest() {
         var request = UserRequestFixture.createRequest();
 
-        User user = User.create(request.githubId(), request.username(), request.email(),
+        User user = User.create(request.username(), request.email(),
             request.avatarUrl(), request.role());
 
-        assertThat(user.getGithubId()).isEqualTo(request.githubId());
         assertThat(user.getUsername()).isEqualTo(request.username());
         assertThat(user.getEmail()).isEqualTo(request.email());
         assertThat(user.getAvatarUrl()).isEqualTo(request.avatarUrl());
@@ -38,14 +37,13 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("updateProfile() 호출 후 githubId와 role은 변경되지 않는다")
-    void updateProfile_doesNotChangeGithubIdOrRole() {
+    @DisplayName("updateProfile() 호출 후 role은 변경되지 않는다")
+    void updateProfile_doesNotChangeRole() {
         User user = UserFixture.user();
         var request = UserRequestFixture.updateProfileRequest();
 
         user.updateProfile(request.username(), request.email(), request.avatarUrl());
 
-        assertThat(user.getGithubId()).isEqualTo(UserRequestFixture.GITHUB_ID);
         assertThat(user.getRole()).isEqualTo(UserRequestFixture.ROLE);
     }
 
@@ -60,13 +58,12 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("changeRole() 호출 후 다른 필드는 변경되지 않는다")
+    @DisplayName("changeRole() 호출 후 username, email은 변경되지 않는다")
     void changeRole_doesNotChangeOtherFields() {
         User user = UserFixture.user();
 
         user.changeRole(Role.BOOTCAMP_ADMIN);
 
-        assertThat(user.getGithubId()).isEqualTo(UserRequestFixture.GITHUB_ID);
         assertThat(user.getUsername()).isEqualTo(UserRequestFixture.USERNAME);
         assertThat(user.getEmail()).isEqualTo(UserRequestFixture.EMAIL);
     }
@@ -113,13 +110,12 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("deactivate() 호출 후 다른 필드는 변경되지 않는다")
+    @DisplayName("deactivate() 호출 후 username, role은 변경되지 않는다")
     void deactivate_doesNotChangeOtherFields() {
         User user = UserFixture.user();
 
         user.deactivate();
 
-        assertThat(user.getGithubId()).isEqualTo(UserRequestFixture.GITHUB_ID);
         assertThat(user.getUsername()).isEqualTo(UserRequestFixture.USERNAME);
         assertThat(user.getRole()).isEqualTo(UserRequestFixture.ROLE);
     }

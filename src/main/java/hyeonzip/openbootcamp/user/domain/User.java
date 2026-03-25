@@ -18,9 +18,6 @@ import lombok.NoArgsConstructor;
 public class User extends AbstractEntity {
 
     @Column(unique = true, nullable = false)
-    private String githubId;
-
-    @Column(unique = true, nullable = false)
     private String username;
 
     private String email;
@@ -32,18 +29,15 @@ public class User extends AbstractEntity {
     private Role role;
 
     @Builder
-    private User(String githubId, String username, String email, String avatarUrl, Role role) {
-        this.githubId = githubId;
+    private User(String username, String email, String avatarUrl, Role role) {
         this.username = username;
         this.email = email;
         this.avatarUrl = avatarUrl;
         this.role = role;
     }
 
-    public static User create(String githubId, String username, String email, String avatarUrl,
-        Role role) {
+    public static User create(String username, String email, String avatarUrl, Role role) {
         return User.builder()
-            .githubId(githubId)
             .username(username)
             .email(email)
             .avatarUrl(avatarUrl)
