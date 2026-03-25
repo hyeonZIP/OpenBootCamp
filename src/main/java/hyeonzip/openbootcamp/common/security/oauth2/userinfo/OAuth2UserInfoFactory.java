@@ -1,7 +1,6 @@
 package hyeonzip.openbootcamp.common.security.oauth2.userinfo;
 
-import hyeonzip.openbootcamp.common.exception.ErrorCode;
-import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
+import hyeonzip.openbootcamp.user.domain.OAuthProvider;
 import java.util.Map;
 
 public class OAuth2UserInfoFactory {
@@ -10,10 +9,12 @@ public class OAuth2UserInfoFactory {
     }
 
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) {
-        if ("github".equalsIgnoreCase(registrationId)) {
-            return new GithubOAuth2UserInfo(attributes);
-        }
-        // TODO: 카카오, 구글 등 추가 시 여기에 분기 추가
-        throw new OpenBootCampException(ErrorCode.UNSUPPORTED_OAUTH2_PROVIDER);
+        OAuthProvider provider = OAuthProvider.from(registrationId);
+
+        return switch (provider) {
+            case GITHUB -> new GithubOAuth2UserInfo(attributes);
+            case KAKAO, GOOGLE -> throw new UnsupportedOperationException(
+                provider.name() + " 로그인은 아직 지원하지 않습니다.");
+        };
     }
 }
