@@ -3,7 +3,9 @@ package hyeonzip.openbootcamp.user.domain;
 import hyeonzip.openbootcamp.common.exception.ErrorCode;
 import hyeonzip.openbootcamp.common.exception.OpenBootCampException;
 import java.util.Arrays;
+import lombok.Getter;
 
+@Getter
 public enum OAuthProvider {
 
     GITHUB("github"),

@@ -1,8 +1,8 @@
 package hyeonzip.openbootcamp.common.security.oauth2.handler;
 
 import hyeonzip.openbootcamp.common.security.cookie.CookieProvider;
+import hyeonzip.openbootcamp.common.security.jwt.JwtProvider;
 import hyeonzip.openbootcamp.common.security.jwt.TokenPair;
-import hyeonzip.openbootcamp.common.security.jwt.TokenService;
 import hyeonzip.openbootcamp.common.security.oauth2.CustomOAuth2User;
 import hyeonzip.openbootcamp.user.domain.User;
 import hyeonzip.openbootcamp.user.service.ports.inp.AuthService;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
-    private final TokenService tokenService;
+    private final JwtProvider jwtProvider;
     private final CookieProvider cookieProvider;
 
     @Value("${app.frontend-url}")
@@ -33,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
         User user = authService.upsertFromOAuth2(customUser.getUserInfo());
 
-        TokenPair tokenPair = tokenService.issue(user);
+        TokenPair tokenPair = jwtProvider.issue(user.getId(), user.getRole().name());
         cookieProvider.addTokenCookies(response, tokenPair);
 
         response.sendRedirect(frontendUrl + "/auth/callback");

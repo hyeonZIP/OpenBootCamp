@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtProvider {
 
+    private static final String CLAIM_ROLE = "role";
+
     @Value("${app.jwt.secret}")
     private String secret;
 
@@ -25,10 +27,17 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    public TokenPair issue(Long userId, String role) {
+        return new TokenPair(
+            generateAccessToken(userId, role),
+            generateRefreshToken(userId)
+        );
+    }
+
     public String generateAccessToken(Long userId, String role) {
         return Jwts.builder()
             .subject(String.valueOf(userId))
-            .claim("role", role)
+            .claim(CLAIM_ROLE, role)
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + accessTokenExpiry))
             .signWith(getSigningKey())
@@ -66,6 +75,6 @@ public class JwtProvider {
     }
 
     public String getRole(String token) {
-        return parseClaims(token).get("role", String.class);
+        return parseClaims(token).get(CLAIM_ROLE, String.class);
     }
 }
