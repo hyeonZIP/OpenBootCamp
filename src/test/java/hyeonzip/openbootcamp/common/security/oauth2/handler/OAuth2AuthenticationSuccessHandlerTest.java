@@ -1,85 +1,114 @@
 package hyeonzip.openbootcamp.common.security.oauth2.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import hyeonzip.openbootcamp.common.security.cookie.CookieProvider;
+import hyeonzip.openbootcamp.common.security.jwt.JwtProvider;
+import hyeonzip.openbootcamp.common.security.jwt.TokenPair;
 import hyeonzip.openbootcamp.common.security.oauth2.CustomOAuth2User;
 import hyeonzip.openbootcamp.common.security.oauth2.userinfo.GithubOAuth2UserInfo;
+import hyeonzip.openbootcamp.common.security.oauth2.userinfo.OAuth2UserInfo;
 import hyeonzip.openbootcamp.user.domain.OAuthProvider;
-import hyeonzip.openbootcamp.user.domain.UserOAuth;
-import hyeonzip.openbootcamp.user.repository.UserOAuthRepository;
-import java.util.List;
+import hyeonzip.openbootcamp.user.domain.User;
+import hyeonzip.openbootcamp.user.fixture.UserFixture;
+import hyeonzip.openbootcamp.user.fixture.UserOAuthFixture;
+import hyeonzip.openbootcamp.user.fixture.UserRequestFixture;
+import hyeonzip.openbootcamp.user.service.ports.inp.AuthService;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class OAuth2AuthenticationSuccessHandlerTest {
 
-    @Autowired
+    @Mock
+    private AuthService authService;
+
+    @Mock
+    private JwtProvider jwtProvider;
+
+    @Mock
+    private CookieProvider cookieProvider;
+
+    @InjectMocks
     private OAuth2AuthenticationSuccessHandler handler;
 
-    @Autowired
-    private UserOAuthRepository userOAuthRepository;
-
-    @Value("${app.frontend-url}")
-    private String frontendUrl;
+    private static final String FRONTEND_URL = "http://localhost:3000";
 
     private static final Map<String, Object> GITHUB_ATTRIBUTES = Map.of(
-        "id", 12345678,
-        "login", "octocat",
-        "email", "octocat@github.com",
-        "avatar_url", "https://avatars.githubusercontent.com/u/12345678"
+        "id", UserOAuthFixture.PROVIDER_ID,
+        "login", UserRequestFixture.USERNAME,
+        "email", UserRequestFixture.EMAIL,
+        "avatar_url", UserRequestFixture.AVATAR_URL
     );
+
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+    private OAuth2AuthenticationToken githubAuth;
+    private User stubUser;
+    private TokenPair stubTokenPair;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(handler, "frontendUrl", FRONTEND_URL);
+
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        githubAuth = buildAuth(GITHUB_ATTRIBUTES);
+
+        stubUser = UserFixture.user();
+        stubTokenPair = new TokenPair("stub-access-token", "stub-refresh-token");
+
+        when(authService.upsertFromOAuth2(any(OAuth2UserInfo.class))).thenReturn(stubUser);
+        when(jwtProvider.issue(stubUser.getId(), stubUser.getRole().name())).thenReturn(
+            stubTokenPair);
+    }
 
     private OAuth2AuthenticationToken buildAuth(Map<String, Object> attributes) {
         GithubOAuth2UserInfo userInfo = new GithubOAuth2UserInfo(attributes);
         CustomOAuth2User customUser = new CustomOAuth2User(userInfo, attributes);
-        return new OAuth2AuthenticationToken(customUser, customUser.getAuthorities(), "github");
+        return new OAuth2AuthenticationToken(
+            customUser, customUser.getAuthorities(), OAuthProvider.GITHUB.getRegistrationId());
     }
 
-    // ── DB 상태 ──────────────────────────────────────────────────
+    // ── 서비스 위임 ──────────────────────────────────────────────────
 
     @Test
-    @DisplayName("신규 사용자 로그인 시 User와 UserOAuth가 DB에 저장된다")
-    void onAuthSuccess_newUser_savesUserAndUserOAuth() throws Exception {
-        handler.onAuthenticationSuccess(new MockHttpServletRequest(),
-            new MockHttpServletResponse(), buildAuth(GITHUB_ATTRIBUTES));
+    @DisplayName("OAuth2 유저 정보로 upsertFromOAuth2를 호출한다")
+    void onAuthSuccess_callsUpsertWithUserInfo() throws Exception {
+        OAuth2UserInfo expectedUserInfo = ((CustomOAuth2User) githubAuth.getPrincipal()).getUserInfo();
 
-        assertThat(userOAuthRepository.findByProviderAndProviderId(
-            OAuthProvider.GITHUB, "12345678")).isPresent();
+        handler.onAuthenticationSuccess(request, response, githubAuth);
+
+        verify(authService).upsertFromOAuth2(expectedUserInfo);
     }
 
     @Test
-    @DisplayName("기존 사용자 재로그인 시 User는 새로 생성되지 않고 프로필이 업데이트된다")
-    void onAuthSuccess_existingUser_updatesProfileWithoutDuplication() throws Exception {
-        handler.onAuthenticationSuccess(new MockHttpServletRequest(),
-            new MockHttpServletResponse(), buildAuth(GITHUB_ATTRIBUTES));
+    @DisplayName("upsertFromOAuth2가 반환한 User로 토큰을 발급한다")
+    void onAuthSuccess_issuesTokenForReturnedUser() throws Exception {
+        handler.onAuthenticationSuccess(request, response, githubAuth);
 
-        Map<String, Object> updatedAttributes = Map.of(
-            "id", 12345678,
-            "login", "octocat-updated",
-            "email", "updated@github.com",
-            "avatar_url", "https://avatars.githubusercontent.com/u/updated"
-        );
-        handler.onAuthenticationSuccess(new MockHttpServletRequest(),
-            new MockHttpServletResponse(), buildAuth(updatedAttributes));
+        verify(jwtProvider).issue(stubUser.getId(), stubUser.getRole().name());
+    }
 
-        var user = userOAuthRepository
-            .findByProviderAndProviderId(OAuthProvider.GITHUB, "12345678")
-            .map(UserOAuth::getUser)
-            .orElseThrow();
+    @Test
+    @DisplayName("발급된 TokenPair로 쿠키를 설정한다")
+    void onAuthSuccess_addsCookiesWithIssuedTokenPair() throws Exception {
+        handler.onAuthenticationSuccess(request, response, githubAuth);
 
-        assertThat(user.getUsername()).isEqualTo("octocat-updated");
-        assertThat(userOAuthRepository.findByProviderAndProviderId(
-            OAuthProvider.GITHUB, "12345678")).isPresent();
+        verify(cookieProvider).addTokenCookies(response, stubTokenPair);
     }
 
     // ── 리다이렉트 ────────────────────────────────────────────────
@@ -87,45 +116,8 @@ class OAuth2AuthenticationSuccessHandlerTest {
     @Test
     @DisplayName("인증 성공 시 frontendUrl + /auth/callback 으로 리다이렉트한다")
     void onAuthSuccess_redirectsToFrontendCallback() throws Exception {
-        MockHttpServletResponse response = new MockHttpServletResponse();
+        handler.onAuthenticationSuccess(request, response, githubAuth);
 
-        handler.onAuthenticationSuccess(new MockHttpServletRequest(), response,
-            buildAuth(GITHUB_ATTRIBUTES));
-
-        assertThat(response.getRedirectedUrl()).isEqualTo(frontendUrl + "/auth/callback");
-    }
-
-    // ── 쿠키 ──────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("accessToken 쿠키가 HttpOnly로 Set-Cookie 헤더에 포함된다")
-    void onAuthSuccess_setsAccessTokenCookieWithHttpOnly() throws Exception {
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        handler.onAuthenticationSuccess(new MockHttpServletRequest(), response,
-            buildAuth(GITHUB_ATTRIBUTES));
-
-        List<String> accessCookies = response.getHeaders("Set-Cookie").stream()
-            .filter(c -> c.startsWith("accessToken="))
-            .toList();
-        assertThat(accessCookies).hasSize(1);
-        assertThat(accessCookies.getFirst()).contains("HttpOnly");
-    }
-
-    @Test
-    @DisplayName("refreshToken 쿠키가 HttpOnly이며 /api/v1/auth/refresh 경로로 제한된다")
-    void onAuthSuccess_setsRefreshTokenCookieWithRestrictedPath() throws Exception {
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        handler.onAuthenticationSuccess(new MockHttpServletRequest(), response,
-            buildAuth(GITHUB_ATTRIBUTES));
-
-        List<String> refreshCookies = response.getHeaders("Set-Cookie").stream()
-            .filter(c -> c.startsWith("refreshToken="))
-            .toList();
-        assertThat(refreshCookies).hasSize(1);
-        assertThat(refreshCookies.getFirst())
-            .contains("HttpOnly")
-            .contains("Path=/api/v1/auth/refresh");
+        assertThat(response.getRedirectedUrl()).isEqualTo(FRONTEND_URL + "/auth/callback");
     }
 }
