@@ -1,8 +1,12 @@
 package hyeonzip.openbootcamp.common.security.cookie;
 
 import hyeonzip.openbootcamp.common.security.jwt.TokenPair;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -20,6 +24,16 @@ public class CookieProvider {
 
     @Value("${app.jwt.refresh-token-expiry}")
     private long refreshTokenExpiry;
+
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return Optional.empty();
+        }
+        return Arrays.stream(request.getCookies())
+            .filter(c -> ACCESS_TOKEN_COOKIE.equals(c.getName()))
+            .map(Cookie::getValue)
+            .findFirst();
+    }
 
     public void addTokenCookies(HttpServletResponse response, TokenPair tokenPair) {
         addCookie(response, ACCESS_TOKEN_COOKIE, tokenPair.accessToken(),
