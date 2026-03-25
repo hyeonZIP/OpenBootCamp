@@ -17,7 +17,7 @@ app:
     allowed-origins: http://localhost:3000
   frontend-url: http://localhost:3000
   jwt:
-    secret: 1q2w3e4r!!or@@
+    secret: test-secret-key-minimum-32-characters-long
     access-token-expiry: 900000       # 15분 (ms)
     refresh-token-expiry: 604800000   # 7일 (ms)
 logging:
