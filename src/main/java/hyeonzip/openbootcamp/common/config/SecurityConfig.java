@@ -1,8 +1,8 @@
 package hyeonzip.openbootcamp.common.config;
 
 import hyeonzip.openbootcamp.common.security.jwt.JwtAuthenticationFilter;
-import hyeonzip.openbootcamp.common.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import hyeonzip.openbootcamp.common.security.oauth2.CustomOAuth2UserService;
+import hyeonzip.openbootcamp.common.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import hyeonzip.openbootcamp.user.domain.Role;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +56,10 @@ public class SecurityConfig {
                 // ── [ADMIN] 플랫폼 관리자 전용 ────────────────────────────────
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/bootcamps/**")
                 .hasAuthority(Role.ADMIN.getAuthority())
-                .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasAuthority(Role.ADMIN.getAuthority())
-                .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasAuthority(Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.GET, "/api/v1/admin/**")
+                .hasAuthority(Role.ADMIN.getAuthority())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**")
+                .hasAuthority(Role.ADMIN.getAuthority())
                 .requestMatchers(HttpMethod.GET, "/api/v1/github/rate-limit")
                 .hasAuthority(Role.ADMIN.getAuthority())
 
