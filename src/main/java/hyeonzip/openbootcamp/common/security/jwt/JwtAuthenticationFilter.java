@@ -19,7 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -27,9 +27,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = extractTokenFromCookie(request);
 
-        if (token != null && jwtUtil.isTokenValid(token)) {
-            Long userId = jwtUtil.getUserId(token);
-            String role = jwtUtil.getRole(token);
+        if (token != null && jwtProvider.isTokenValid(token)) {
+            Long userId = jwtProvider.getUserId(token);
+            String role = jwtProvider.getRole(token);
 
             UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
