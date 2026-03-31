@@ -27,10 +27,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         FilterChain filterChain) throws ServletException, IOException {
 
         cookieProvider.extractAccessToken(request)
-            .filter(jwtProvider::isTokenValid)
-            .ifPresent(token -> {
-                Long userId = jwtProvider.getUserId(token);
-                String role = jwtProvider.getRole(token);
+            .flatMap(jwtProvider::parseClaimsSafely)
+            .ifPresent(claims -> {
+                Long userId = jwtProvider.getUserId(claims);
+                String role = jwtProvider.getRole(claims);
                 SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(
                         userId, null,

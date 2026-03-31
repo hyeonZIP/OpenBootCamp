@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class JwtProvider {
         );
     }
 
-    public String generateAccessToken(Long userId, String role) {
+    private String generateAccessToken(Long userId, String role) {
         return Jwts.builder()
             .subject(String.valueOf(userId))
             .claim(CLAIM_ROLE, role)
@@ -44,7 +45,7 @@ public class JwtProvider {
             .compact();
     }
 
-    public String generateRefreshToken(Long userId) {
+    private String generateRefreshToken(Long userId) {
         return Jwts.builder()
             .subject(String.valueOf(userId))
             .issuedAt(new Date())
@@ -53,7 +54,7 @@ public class JwtProvider {
             .compact();
     }
 
-    public Claims parseClaims(String token) {
+    private Claims parseClaims(String token) {
         return Jwts.parser()
             .verifyWith(getSigningKey())
             .build()
@@ -61,20 +62,19 @@ public class JwtProvider {
             .getPayload();
     }
 
-    public boolean isTokenValid(String token) {
+    public Optional<Claims> parseClaimsSafely(String token) {
         try {
-            parseClaims(token);
-            return true;
+            return Optional.of(parseClaims(token));
         } catch (Exception e) {
-            return false;
+            return Optional.empty();
         }
     }
 
-    public Long getUserId(String token) {
-        return Long.parseLong(parseClaims(token).getSubject());
+    public Long getUserId(Claims claims) {
+        return Long.parseLong(claims.getSubject());
     }
 
-    public String getRole(String token) {
-        return parseClaims(token).get(CLAIM_ROLE, String.class);
+    public String getRole(Claims claims) {
+        return claims.get(CLAIM_ROLE, String.class);
     }
 }

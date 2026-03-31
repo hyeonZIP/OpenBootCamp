@@ -3,6 +3,7 @@ package hyeonzip.openbootcamp.common.security.jwt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import hyeonzip.openbootcamp.user.domain.Role;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,74 +25,84 @@ class JwtProviderTest {
         ReflectionTestUtils.setField(jwtProvider, "refreshTokenExpiry", REFRESH_TOKEN_EXPIRY);
     }
 
-    // ── accessToken 생성 ──────────────────────────────────────────
+    // ── issue + getUserId / getRole ────────────────────────────────
 
     @Test
-    @DisplayName("accessToken에서 userId가 정확히 추출된다")
-    void generateAccessToken_extractsCorrectUserId() {
-        String token = jwtProvider.generateAccessToken(1L, Role.STUDENT.name());
+    @DisplayName("accessToken Claims에서 userId가 정확히 추출된다")
+    void issue_accessToken_extractsCorrectUserId() {
+        TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
 
-        assertThat(jwtProvider.getUserId(token)).isEqualTo(1L);
+        Claims claims = jwtProvider.parseClaimsSafely(pair.accessToken()).orElseThrow();
+        assertThat(jwtProvider.getUserId(claims)).isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("accessToken에서 role이 정확히 추출된다")
-    void generateAccessToken_extractsCorrectRole() {
-        String token = jwtProvider.generateAccessToken(1L, Role.ADMIN.name());
+    @DisplayName("accessToken Claims에서 role이 정확히 추출된다")
+    void issue_accessToken_extractsCorrectRole() {
+        TokenPair pair = jwtProvider.issue(1L, Role.ADMIN.name());
 
-        assertThat(jwtProvider.getRole(token)).isEqualTo(Role.ADMIN.name());
-    }
-
-    // ── refreshToken 생성 ─────────────────────────────────────────
-
-    @Test
-    @DisplayName("refreshToken에서 userId가 정확히 추출된다")
-    void generateRefreshToken_extractsCorrectUserId() {
-        String token = jwtProvider.generateRefreshToken(42L);
-
-        assertThat(jwtProvider.getUserId(token)).isEqualTo(42L);
-    }
-
-    // ── isTokenValid ──────────────────────────────────────────────
-
-    @Test
-    @DisplayName("유효한 토큰은 true를 반환한다")
-    void isTokenValid_validToken_returnsTrue() {
-        String token = jwtProvider.generateAccessToken(1L, Role.STUDENT.name());
-
-        assertThat(jwtProvider.isTokenValid(token)).isTrue();
+        Claims claims = jwtProvider.parseClaimsSafely(pair.accessToken()).orElseThrow();
+        assertThat(jwtProvider.getRole(claims)).isEqualTo(Role.ADMIN.name());
     }
 
     @Test
-    @DisplayName("잘못된 형식의 토큰은 false를 반환한다")
-    void isTokenValid_malformedToken_returnsFalse() {
-        assertThat(jwtProvider.isTokenValid("not-a-jwt")).isFalse();
+    @DisplayName("refreshToken Claims에서 userId가 정확히 추출된다")
+    void issue_refreshToken_extractsCorrectUserId() {
+        TokenPair pair = jwtProvider.issue(42L, Role.STUDENT.name());
+
+        Claims claims = jwtProvider.parseClaimsSafely(pair.refreshToken()).orElseThrow();
+        assertThat(jwtProvider.getUserId(claims)).isEqualTo(42L);
     }
 
     @Test
-    @DisplayName("다른 시크릿으로 서명된 토큰은 false를 반환한다")
-    void isTokenValid_differentSecretToken_returnsFalse() {
+    @DisplayName("refreshToken은 role claim을 포함하지 않는다")
+    void issue_refreshToken_hasNoRoleClaim() {
+        TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
+
+        Claims claims = jwtProvider.parseClaimsSafely(pair.refreshToken()).orElseThrow();
+        assertThat(jwtProvider.getRole(claims)).isNull();
+    }
+
+    // ── parseClaimsSafely ──────────────────────────────────────────
+
+    @Test
+    @DisplayName("유효한 토큰은 Optional.present를 반환한다")
+    void parseClaimsSafely_validToken_returnsPresent() {
+        TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
+
+        assertThat(jwtProvider.parseClaimsSafely(pair.accessToken())).isPresent();
+    }
+
+    @Test
+    @DisplayName("잘못된 형식의 토큰은 Optional.empty를 반환한다")
+    void parseClaimsSafely_malformedToken_returnsEmpty() {
+        assertThat(jwtProvider.parseClaimsSafely("not-a-jwt")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("다른 시크릿으로 서명된 토큰은 Optional.empty를 반환한다")
+    void parseClaimsSafely_differentSecretToken_returnsEmpty() {
         JwtProvider otherProvider = new JwtProvider();
         ReflectionTestUtils.setField(otherProvider, "secret",
             "other-secret-key-minimum-32-characters-long");
         ReflectionTestUtils.setField(otherProvider, "accessTokenExpiry", ACCESS_TOKEN_EXPIRY);
         ReflectionTestUtils.setField(otherProvider, "refreshTokenExpiry", REFRESH_TOKEN_EXPIRY);
 
-        String tokenFromOther = otherProvider.generateAccessToken(1L, Role.STUDENT.name());
+        String tokenFromOther = otherProvider.issue(1L, Role.STUDENT.name()).accessToken();
 
-        assertThat(jwtProvider.isTokenValid(tokenFromOther)).isFalse();
+        assertThat(jwtProvider.parseClaimsSafely(tokenFromOther)).isEmpty();
     }
 
     @Test
-    @DisplayName("만료된 토큰은 false를 반환한다")
-    void isTokenValid_expiredToken_returnsFalse() {
+    @DisplayName("만료된 토큰은 Optional.empty를 반환한다")
+    void parseClaimsSafely_expiredToken_returnsEmpty() {
         JwtProvider expiredProvider = new JwtProvider();
         ReflectionTestUtils.setField(expiredProvider, "secret", SECRET);
         ReflectionTestUtils.setField(expiredProvider, "accessTokenExpiry", -1L);
         ReflectionTestUtils.setField(expiredProvider, "refreshTokenExpiry", REFRESH_TOKEN_EXPIRY);
 
-        String expiredToken = expiredProvider.generateAccessToken(1L, Role.STUDENT.name());
+        String expiredToken = expiredProvider.issue(1L, Role.STUDENT.name()).accessToken();
 
-        assertThat(jwtProvider.isTokenValid(expiredToken)).isFalse();
+        assertThat(jwtProvider.parseClaimsSafely(expiredToken)).isEmpty();
     }
 }

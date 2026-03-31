@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import hyeonzip.openbootcamp.common.security.cookie.CookieProvider;
 import hyeonzip.openbootcamp.user.domain.Role;
-import jakarta.servlet.http.Cookie;
+import io.jsonwebtoken.Claims;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +29,9 @@ class JwtAuthenticationFilterTest {
 
     @Mock
     private CookieProvider cookieProvider;
+
+    @Mock
+    private Claims mockClaims;
 
     @InjectMocks
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -57,11 +60,10 @@ class JwtAuthenticationFilterTest {
     @Test
     @DisplayName("유효한 accessToken 쿠키가 있으면 SecurityContext에 인증 정보를 설정한다")
     void doFilter_validToken_setsAuthentication() throws Exception {
-        request.setCookies(new Cookie("accessToken", VALID_TOKEN));
         when(cookieProvider.extractAccessToken(request)).thenReturn(Optional.of(VALID_TOKEN));
-        when(jwtProvider.isTokenValid(VALID_TOKEN)).thenReturn(true);
-        when(jwtProvider.getUserId(VALID_TOKEN)).thenReturn(USER_ID);
-        when(jwtProvider.getRole(VALID_TOKEN)).thenReturn(Role.STUDENT.name());
+        when(jwtProvider.parseClaimsSafely(VALID_TOKEN)).thenReturn(Optional.of(mockClaims));
+        when(jwtProvider.getUserId(mockClaims)).thenReturn(USER_ID);
+        when(jwtProvider.getRole(mockClaims)).thenReturn(Role.STUDENT.name());
 
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
@@ -77,9 +79,9 @@ class JwtAuthenticationFilterTest {
     @DisplayName("ADMIN role 토큰이면 ROLE_ADMIN 권한으로 설정된다")
     void doFilter_adminToken_setsAdminAuthority() throws Exception {
         when(cookieProvider.extractAccessToken(request)).thenReturn(Optional.of(VALID_TOKEN));
-        when(jwtProvider.isTokenValid(VALID_TOKEN)).thenReturn(true);
-        when(jwtProvider.getUserId(VALID_TOKEN)).thenReturn(USER_ID);
-        when(jwtProvider.getRole(VALID_TOKEN)).thenReturn(Role.ADMIN.name());
+        when(jwtProvider.parseClaimsSafely(VALID_TOKEN)).thenReturn(Optional.of(mockClaims));
+        when(jwtProvider.getUserId(mockClaims)).thenReturn(USER_ID);
+        when(jwtProvider.getRole(mockClaims)).thenReturn(Role.ADMIN.name());
 
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
@@ -105,7 +107,7 @@ class JwtAuthenticationFilterTest {
     @DisplayName("토큰이 유효하지 않으면 SecurityContext에 인증 정보를 설정하지 않는다")
     void doFilter_invalidToken_doesNotSetAuthentication() throws Exception {
         when(cookieProvider.extractAccessToken(request)).thenReturn(Optional.of("invalid-token"));
-        when(jwtProvider.isTokenValid("invalid-token")).thenReturn(false);
+        when(jwtProvider.parseClaimsSafely("invalid-token")).thenReturn(Optional.empty());
 
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
