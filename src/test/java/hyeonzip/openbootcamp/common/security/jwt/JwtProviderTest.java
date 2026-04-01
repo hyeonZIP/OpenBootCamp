@@ -63,6 +63,26 @@ class JwtProviderTest {
         assertThat(jwtProvider.getRole(claims)).isNull();
     }
 
+    // ── isAccessToken ─────────────────────────────────────────────
+
+    @Test
+    @DisplayName("accessToken은 isAccessToken이 true를 반환한다")
+    void isAccessToken_accessToken_returnsTrue() {
+        TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
+
+        Claims claims = jwtProvider.parseClaimsSafely(pair.accessToken()).orElseThrow();
+        assertThat(jwtProvider.isAccessToken(claims)).isTrue();
+    }
+
+    @Test
+    @DisplayName("refreshToken은 isAccessToken이 false를 반환한다")
+    void isAccessToken_refreshToken_returnsFalse() {
+        TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
+
+        Claims claims = jwtProvider.parseClaimsSafely(pair.refreshToken()).orElseThrow();
+        assertThat(jwtProvider.isAccessToken(claims)).isFalse();
+    }
+
     // ── parseClaimsSafely ──────────────────────────────────────────
 
     @Test
