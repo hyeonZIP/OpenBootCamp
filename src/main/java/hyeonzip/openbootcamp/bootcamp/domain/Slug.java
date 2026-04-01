@@ -35,7 +35,6 @@ public class Slug {
             if (StringUtils.hasText(result)) {
                 return new Slug(result);
             }
-            throw new OpenBootCampException(ErrorCode.INVALID_INPUT);
         }
         throw new OpenBootCampException(ErrorCode.INVALID_INPUT);
     }
