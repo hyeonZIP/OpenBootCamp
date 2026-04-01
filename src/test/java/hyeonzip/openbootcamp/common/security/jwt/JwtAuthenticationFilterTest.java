@@ -114,6 +114,18 @@ class JwtAuthenticationFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
+    @Test
+    @DisplayName("role claim이 없는 토큰(refreshToken)이면 SecurityContext에 인증 정보를 설정하지 않는다")
+    void doFilter_tokenWithNoRoleClaim_doesNotSetAuthentication() throws Exception {
+        when(cookieProvider.extractAccessToken(request)).thenReturn(Optional.of(VALID_TOKEN));
+        when(jwtProvider.parseClaimsSafely(VALID_TOKEN)).thenReturn(Optional.of(mockClaims));
+        when(jwtProvider.getRole(mockClaims)).thenReturn(null);
+
+        jwtAuthenticationFilter.doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    }
+
     // ── 필터 체인 ──────────────────────────────────────────────────
 
     @Test
