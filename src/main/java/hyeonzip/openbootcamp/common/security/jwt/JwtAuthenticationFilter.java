@@ -2,12 +2,14 @@ package hyeonzip.openbootcamp.common.security.jwt;
 
 import hyeonzip.openbootcamp.common.security.cookie.CookieProvider;
 import hyeonzip.openbootcamp.user.domain.Role;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,17 +30,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         cookieProvider.extractAccessToken(request)
             .flatMap(jwtProvider::parseClaimsSafely)
-            .ifPresent(claims -> {
-                Long userId = jwtProvider.getUserId(claims);
-                String role = jwtProvider.getRole(claims);
-                SecurityContextHolder.getContext().setAuthentication(
-                    new UsernamePasswordAuthenticationToken(
-                        userId, null,
-                        List.of(new SimpleGrantedAuthority(Role.valueOf(role).getAuthority()))
-                    )
-                );
-            });
+            .flatMap(this::toAuthentication)
+            .ifPresent(SecurityContextHolder.getContext()::setAuthentication);
 
         filterChain.doFilter(request, response);
+    }
+
+    private Optional<UsernamePasswordAuthenticationToken> toAuthentication(Claims claims) {
+        return Role.from(jwtProvider.getRole(claims))
+            .map(role -> new UsernamePasswordAuthenticationToken(
+                jwtProvider.getUserId(claims),
+                null,
+                List.of(new SimpleGrantedAuthority(role.getAuthority()))
+            ));
     }
 }
