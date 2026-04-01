@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         cookieProvider.extractAccessToken(request)
             .flatMap(jwtProvider::parseClaimsSafely)
+            .filter(jwtProvider::isAccessToken)
             .flatMap(this::toAuthentication)
             .ifPresent(SecurityContextHolder.getContext()::setAuthentication);
 
