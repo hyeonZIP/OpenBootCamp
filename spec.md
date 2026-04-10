@@ -1,8 +1,8 @@
 # OpenBootCamp Spec (Product Requirements Document)
 
-> **CDD(Context-Driven Development) 최적화 버전**
+> **SDD(Spec-Driven Development) 최적화 버전**
 > Claude Code가 이 문서를 컨텍스트로 참조하여 코드를 생성할 수 있도록 구조화되었습니다.
-> 최종 수정: 2026-03-10
+> 최종 수정: 2026-04-10
 
 ---
 
