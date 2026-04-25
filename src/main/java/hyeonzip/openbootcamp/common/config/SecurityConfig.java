@@ -14,12 +14,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Profile("!test")
 @Configuration
@@ -30,13 +32,22 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
 
+    @Value("${spring.h2.console.enabled}")
+    private boolean h2ConsoleEnabled;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
+            .headers(headers -> {
+                if (h2ConsoleEnabled) {
+                    headers.frameOptions(FrameOptionsConfig::sameOrigin);
+                }
+            })
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session ->
@@ -52,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                 // H2 콘솔 (개발 편의)
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/favicon.ico/**").permitAll()
 
                 // ── [ADMIN] 플랫폼 관리자 전용 ────────────────────────────────
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/bootcamps/**")
@@ -91,7 +103,13 @@ public class SecurityConfig {
                     .userService(customOAuth2UserService))
                 .successHandler(oAuth2AuthenticationSuccessHandler)
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, e) ->
+                    handlerExceptionResolver.resolveException(req, res, null, e))
+                .accessDeniedHandler((req, res, e) ->
+                    handlerExceptionResolver.resolveException(req, res, null, e))
+            );
 
         return http.build();
     }
