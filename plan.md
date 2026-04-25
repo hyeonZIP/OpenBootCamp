@@ -303,73 +303,72 @@ tasks:
 
 **엔티티**:
 ```java
-// User.java
+// User.java — AbstractEntity 상속 (id, createdAt, updatedAt, active)
+// githubId는 User에 직접 두지 않고 UserOAuth로 분리 (다중 OAuth 제공자 지원)
 @Entity @Table(name = "users")
-public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(unique = true)
-    private String githubId;
+public class User extends AbstractEntity {
     @Column(unique = true, nullable = false)
     private String username;
     private String email;
     private String avatarUrl;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;  // STUDENT, BOOTCAMP_ADMIN, ADMIN
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+}
+
+// OAuthProvider.java
+public enum OAuthProvider {
+    GITHUB("github"), KAKAO("kakao"), GOOGLE("google");
+    // from(registrationId): 제공자 ID 문자열 → enum 변환
+}
+
+// UserOAuth.java — OAuth 제공자별 연동 정보 (provider + providerId 복합 유니크)
+@Entity @Table(name = "user_oauth")
+public class UserOAuth extends AbstractEntity {
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+    @Enumerated(EnumType.STRING)
+    private OAuthProvider provider;
+    private String providerId;  // OAuth 제공자 내 사용자 고유 ID
+}
+
+// RefreshToken.java — refreshToken DB 저장 (로그아웃 시 무효화, 재사용 방지)
+@Entity @Table(name = "refresh_tokens")
+public class RefreshToken extends AbstractEntity {
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+    @Column(nullable = false, unique = true)
+    private String token;
+    private LocalDateTime expiresAt;
+    // invalidate(): 토큰 만료 처리
 }
 ```
 
 ```
 tasks:
 - [x] User 엔티티 + Role Enum
-- [ ] UserRepository
-- [ ] GitHub OAuth2 설정
-      - GitHub App / OAuth App 생성 (Callback: /api/v1/auth/github/callback)
-      - application.yml에 client-id, client-secret 설정
-- [ ] JWT 유틸 클래스 (발급, 검증, Claims 추출)
-- [ ] JwtAuthenticationFilter (요청마다 토큰 검증)
-- [ ] AuthService
-      - GitHub 사용자 정보 수신 → User upsert → JWT 발급
+- [x] OAuthProvider Enum + UserOAuth 엔티티 (OAuth 제공자 분리)
+- [x] UserRepository, UserOAuthRepository
+- [x] GitHub OAuth2 설정
+      - application-oauth.yml에 client-id, client-secret 설정
+      - OAuth2 콜백 경로: /login/oauth2/code/github (Spring Security 자동 처리)
+      - CustomOAuth2UserService, OAuth2UserInfo 계층 (GithubOAuth2UserInfo)
+      - OAuth2AuthenticationSuccessHandler: upsert → JWT 발급 → 쿠키 저장 → FE 리다이렉트
+- [x] JWT 유틸 클래스 (JwtProvider — 발급, 검증, Claims 추출)
+- [x] CookieProvider (HttpOnly 쿠키 설정/추출/삭제)
+- [x] JwtAuthenticationFilter (요청마다 쿠키에서 AT 검증)
+- [x] AuthService (인터페이스 + DefaultAuthService — upsertFromOAuth2, findById)
+- [ ] RefreshToken 엔티티 + RefreshTokenRepository (DB 저장으로 로그아웃 시 무효화)
 - [ ] AuthController
-      - GET  /api/v1/auth/github/callback  OAuth 콜백
-      - POST /api/v1/auth/refresh          AT 재발급
-      - POST /api/v1/auth/logout
+      - POST /api/v1/auth/refresh  AT 재발급 (RT 쿠키 검증 → DB 조회 → 새 AT 발급)
+      - POST /api/v1/auth/logout   RT 무효화 + 쿠키 삭제
       - GET  /api/v1/auth/me   [AUTH]
-- [ ] SecurityConfig — CORS 전역 설정 + 경로별 접근 권한 설정
-      // CORS: Next.js origin (localhost:3000, 프로덕션 도메인) 허용
-      // allowedMethods: GET, POST, PUT, DELETE, OPTIONS
-      // allowedHeaders: *, allowCredentials: true
-      // ── [PUBLIC] 비로그인 허용 ──────────────────────────────────
-      //  GET  /api/v1/auth/github/callback
-      //  POST /api/v1/auth/refresh
-      //  GET  /api/v1/bootcamps/**         (목록, 상세, 트랙, 통계, 비교)
-      //  GET  /api/v1/projects/**          (목록, 상세, PR, 코드리뷰)
-      //  GET  /api/v1/pull-requests/**     (코드리뷰 조회)
-      //  GET  /api/v1/reviews/**           (리뷰 열람)
-      //
-      // ── [AUTH] 로그인 필요 ───────────────────────────────────────
-      //  POST /api/v1/auth/logout
-      //  GET  /api/v1/auth/me
-      //  POST/PUT/DELETE /api/v1/projects/**
-      //  POST/PUT/DELETE /api/v1/reviews/**
-      //  GET/PUT /api/v1/users/me/**
-      //  POST /api/v1/github/sync/**
-      //
-      // ── [BOOTCAMP_ADMIN] 운영사 이상 ────────────────────────────
-      //  POST/PUT /api/v1/bootcamps/**
-      //  POST/PUT/DELETE /api/v1/bootcamps/{id}/tracks/**
-      //  GET /api/v1/admin/bootcamp/dashboard
-      //
-      // ── [ADMIN] 플랫폼 관리자 전용 ──────────────────────────────
-      //  DELETE /api/v1/bootcamps/**
-      //  GET/PUT /api/v1/admin/**
-      //  GET /api/v1/github/rate-limit
-- [ ] Phase 1 API에 권한 추가
+- [x] SecurityConfig — CORS 전역 설정 + 경로별 접근 권한 설정 (구현 완료)
+- [x] Phase 1 API에 권한 추가
       - POST/PUT /bootcamps → BOOTCAMP_ADMIN or ADMIN
       - DELETE /bootcamps → ADMIN only
-- [ ] 단위 테스트 (JwtUtilTest, AuthServiceTest)
+- [x] 단위 테스트 (JwtProviderTest, JwtAuthenticationFilterTest)
+- [ ] 단위 테스트 (AuthServiceTest)
 ```
 
 ---

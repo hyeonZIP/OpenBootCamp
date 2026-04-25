@@ -558,9 +558,22 @@ public enum ProjectStatus {
     DRAFT, PUBLISHED, ARCHIVED
 }
 
+// OAuthProvider.java — OAuth2 제공자
+public enum OAuthProvider {
+    GITHUB("github"), KAKAO("kakao"), GOOGLE("google");
+
+    private final String registrationId;
+
+    // from(registrationId): 대소문자 무관하게 매칭, 미지원 시 UNSUPPORTED_OAUTH2_PROVIDER 예외
+    public static OAuthProvider from(String registrationId) { ... }
+}
+
 // Role.java
 public enum Role {
-    STUDENT, BOOTCAMP_ADMIN, ADMIN
+    STUDENT, BOOTCAMP_ADMIN, ADMIN;
+
+    // getAuthority(): Spring Security 권한명 반환 ("ROLE_STUDENT" 등)
+    public String getAuthority() { return "ROLE_" + this.name(); }
 }
 ```
 
@@ -568,14 +581,10 @@ public enum Role {
 
 #### User
 ```java
+// AbstractEntity 상속: id(PK), createdAt, updatedAt, active(소프트 삭제용) 제공
 @Entity
 @Table(name = "users")
-public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
-    private String githubId;        // GitHub OAuth sub
+public class User extends AbstractEntity {
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -584,10 +593,36 @@ public class User {
     private String avatarUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;              // STUDENT, BOOTCAMP_ADMIN, ADMIN
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    // 정적 팩토리
+    public static User create(String username, String email, String avatarUrl, Role role) { ... }
+    public void updateProfile(String username, String email, String avatarUrl) { ... }
+    public void changeRole(Role role) { ... }
+}
+```
+
+#### UserOAuth
+```java
+// 한 명의 User가 여러 OAuth 제공자와 연동 가능 (provider + providerId 복합 유니크)
+@Entity
+@Table(name = "user_oauth",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"provider", "provider_id"}))
+public class UserOAuth extends AbstractEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OAuthProvider provider;  // GITHUB, KAKAO, GOOGLE
+
+    @Column(name = "provider_id", nullable = false)
+    private String providerId;       // OAuth 제공자 내 사용자 고유 ID
+
+    public static UserOAuth create(User user, OAuthProvider provider, String providerId) { ... }
 }
 ```
 
