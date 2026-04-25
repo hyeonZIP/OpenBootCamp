@@ -1,15 +1,21 @@
 package hyeonzip.openbootcamp.common.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class JwtProvider {
 
@@ -70,7 +76,20 @@ public class JwtProvider {
     public Optional<Claims> parseClaimsOrEmpty(String token) {
         try {
             return Optional.of(parseClaims(token));
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
+            log.debug("JWT 토큰 만료: {}", e.getMessage());
+            return Optional.empty();
+        } catch (SignatureException e) {
+            log.warn("JWT 서명 불일치 (위변조 의심): {}", e.getMessage());
+            return Optional.empty();
+        } catch (MalformedJwtException e) {
+            log.warn("JWT 형식 오류: {}", e.getMessage());
+            return Optional.empty();
+        } catch (UnsupportedJwtException e) {
+            log.warn("지원하지 않는 JWT 형식: {}", e.getMessage());
+            return Optional.empty();
+        } catch (IllegalArgumentException e) {
+            log.debug("JWT 토큰 값이 null 또는 빈 문자열: {}", e.getMessage());
             return Optional.empty();
         }
     }
