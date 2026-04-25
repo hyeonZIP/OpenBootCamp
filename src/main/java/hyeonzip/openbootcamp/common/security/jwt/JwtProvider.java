@@ -67,7 +67,7 @@ public class JwtProvider {
             .getPayload();
     }
 
-    public Optional<Claims> parseClaimsSafely(String token) {
+    public Optional<Claims> parseClaimsOrEmpty(String token) {
         try {
             return Optional.of(parseClaims(token));
         } catch (Exception e) {

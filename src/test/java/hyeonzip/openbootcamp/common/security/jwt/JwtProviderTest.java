@@ -32,7 +32,7 @@ class JwtProviderTest {
     void issue_accessToken_extractsCorrectUserId() {
         TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
 
-        Claims claims = jwtProvider.parseClaimsSafely(pair.accessToken()).orElseThrow();
+        Claims claims = jwtProvider.parseClaimsOrEmpty(pair.accessToken()).orElseThrow();
         assertThat(jwtProvider.getUserId(claims)).isEqualTo(1L);
     }
 
@@ -41,7 +41,7 @@ class JwtProviderTest {
     void issue_accessToken_extractsCorrectRole() {
         TokenPair pair = jwtProvider.issue(1L, Role.ADMIN.name());
 
-        Claims claims = jwtProvider.parseClaimsSafely(pair.accessToken()).orElseThrow();
+        Claims claims = jwtProvider.parseClaimsOrEmpty(pair.accessToken()).orElseThrow();
         assertThat(jwtProvider.getRole(claims)).isEqualTo(Role.ADMIN.name());
     }
 
@@ -50,7 +50,7 @@ class JwtProviderTest {
     void issue_refreshToken_extractsCorrectUserId() {
         TokenPair pair = jwtProvider.issue(42L, Role.STUDENT.name());
 
-        Claims claims = jwtProvider.parseClaimsSafely(pair.refreshToken()).orElseThrow();
+        Claims claims = jwtProvider.parseClaimsOrEmpty(pair.refreshToken()).orElseThrow();
         assertThat(jwtProvider.getUserId(claims)).isEqualTo(42L);
     }
 
@@ -59,7 +59,7 @@ class JwtProviderTest {
     void issue_refreshToken_hasNoRoleClaim() {
         TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
 
-        Claims claims = jwtProvider.parseClaimsSafely(pair.refreshToken()).orElseThrow();
+        Claims claims = jwtProvider.parseClaimsOrEmpty(pair.refreshToken()).orElseThrow();
         assertThat(jwtProvider.getRole(claims)).isNull();
     }
 
@@ -70,7 +70,7 @@ class JwtProviderTest {
     void isAccessToken_accessToken_returnsTrue() {
         TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
 
-        Claims claims = jwtProvider.parseClaimsSafely(pair.accessToken()).orElseThrow();
+        Claims claims = jwtProvider.parseClaimsOrEmpty(pair.accessToken()).orElseThrow();
         assertThat(jwtProvider.isAccessToken(claims)).isTrue();
     }
 
@@ -79,29 +79,29 @@ class JwtProviderTest {
     void isAccessToken_refreshToken_returnsFalse() {
         TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
 
-        Claims claims = jwtProvider.parseClaimsSafely(pair.refreshToken()).orElseThrow();
+        Claims claims = jwtProvider.parseClaimsOrEmpty(pair.refreshToken()).orElseThrow();
         assertThat(jwtProvider.isAccessToken(claims)).isFalse();
     }
 
-    // ── parseClaimsSafely ──────────────────────────────────────────
+    // ── parseClaimsOrEmpty ──────────────────────────────────────────
 
     @Test
     @DisplayName("유효한 토큰은 Optional.present를 반환한다")
-    void parseClaimsSafely_validToken_returnsPresent() {
+    void parseClaimsOrEmpty_validToken_returnsPresent() {
         TokenPair pair = jwtProvider.issue(1L, Role.STUDENT.name());
 
-        assertThat(jwtProvider.parseClaimsSafely(pair.accessToken())).isPresent();
+        assertThat(jwtProvider.parseClaimsOrEmpty(pair.accessToken())).isPresent();
     }
 
     @Test
     @DisplayName("잘못된 형식의 토큰은 Optional.empty를 반환한다")
-    void parseClaimsSafely_malformedToken_returnsEmpty() {
-        assertThat(jwtProvider.parseClaimsSafely("not-a-jwt")).isEmpty();
+    void parseClaimsOrEmpty_malformedToken_returnsEmpty() {
+        assertThat(jwtProvider.parseClaimsOrEmpty("not-a-jwt")).isEmpty();
     }
 
     @Test
     @DisplayName("다른 시크릿으로 서명된 토큰은 Optional.empty를 반환한다")
-    void parseClaimsSafely_differentSecretToken_returnsEmpty() {
+    void parseClaimsOrEmpty_differentSecretToken_returnsEmpty() {
         JwtProvider otherProvider = new JwtProvider();
         ReflectionTestUtils.setField(otherProvider, "secret",
             "other-secret-key-minimum-32-characters-long");
@@ -110,12 +110,12 @@ class JwtProviderTest {
 
         String tokenFromOther = otherProvider.issue(1L, Role.STUDENT.name()).accessToken();
 
-        assertThat(jwtProvider.parseClaimsSafely(tokenFromOther)).isEmpty();
+        assertThat(jwtProvider.parseClaimsOrEmpty(tokenFromOther)).isEmpty();
     }
 
     @Test
     @DisplayName("만료된 토큰은 Optional.empty를 반환한다")
-    void parseClaimsSafely_expiredToken_returnsEmpty() {
+    void parseClaimsOrEmpty_expiredToken_returnsEmpty() {
         JwtProvider expiredProvider = new JwtProvider();
         ReflectionTestUtils.setField(expiredProvider, "secret", SECRET);
         ReflectionTestUtils.setField(expiredProvider, "accessTokenExpiry", -1L);
@@ -123,6 +123,6 @@ class JwtProviderTest {
 
         String expiredToken = expiredProvider.issue(1L, Role.STUDENT.name()).accessToken();
 
-        assertThat(jwtProvider.parseClaimsSafely(expiredToken)).isEmpty();
+        assertThat(jwtProvider.parseClaimsOrEmpty(expiredToken)).isEmpty();
     }
 }

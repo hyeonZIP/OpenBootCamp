@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Optional<Claims> getAccessTokenClaims(String accessTokenClaims) {
-        Optional<Claims> claims = jwtProvider.parseClaimsSafely(accessTokenClaims);
+        Optional<Claims> claims = jwtProvider.parseClaimsOrEmpty(accessTokenClaims);
 
         if (claims.isPresent() && jwtProvider.isAccessToken(claims.get())) {
             return claims;
