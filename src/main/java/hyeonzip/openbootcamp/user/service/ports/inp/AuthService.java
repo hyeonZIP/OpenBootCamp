@@ -8,4 +8,10 @@ public interface AuthService {
     User upsertFromOAuth2(OAuth2UserInfo userInfo);
 
     User findById(Long id);
+
+    void saveRefreshToken(User user, String tokenValue);
+
+    User refresh(String tokenValue);
+
+    void logout(String tokenValue);
 }

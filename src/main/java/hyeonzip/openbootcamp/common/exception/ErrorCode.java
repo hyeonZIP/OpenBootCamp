@@ -24,6 +24,7 @@ public enum ErrorCode {
 
     // ── Auth ─────────────────────────────────────────────────────
     UNSUPPORTED_OAUTH2_PROVIDER("지원하지 않는 OAuth2 제공자입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_REFRESH_TOKEN("유효하지 않은 Refresh Token입니다.", HttpStatus.UNAUTHORIZED),
 
     // ── GitHub ───────────────────────────────────────────────────
     GITHUB_API_ERROR("GitHub API 호출 중 오류가 발생했습니다.", HttpStatus.BAD_GATEWAY),
