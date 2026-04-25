@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
@@ -28,21 +29,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
-        cookieProvider.extractAccessToken(request)
-            .flatMap(jwtProvider::parseClaimsSafely)
-            .filter(jwtProvider::isAccessToken)
-            .flatMap(this::toAuthentication)
-            .ifPresent(SecurityContextHolder.getContext()::setAuthentication);
+        Optional<String> accessTokenCookie = cookieProvider.extractAccessToken(request);
+
+        if (accessTokenCookie.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Optional<Claims> accessTokenClaims = getAccessTokenClaims(accessTokenCookie.get());
+
+        if (accessTokenClaims.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Claims claims = accessTokenClaims.get();
+
+        Long userId = jwtProvider.getUserId(claims);
+        List<SimpleGrantedAuthority> authorities = resolveAuthorities(jwtProvider.getRole(claims));
+
+        setSecurityContextHolder(userId, authorities);
 
         filterChain.doFilter(request, response);
     }
 
-    private Optional<UsernamePasswordAuthenticationToken> toAuthentication(Claims claims) {
-        return Role.from(jwtProvider.getRole(claims))
-            .map(role -> new UsernamePasswordAuthenticationToken(
-                jwtProvider.getUserId(claims),
-                null,
-                List.of(new SimpleGrantedAuthority(role.getAuthority()))
-            ));
+    private Optional<Claims> getAccessTokenClaims(String accessTokenClaims) {
+        Optional<Claims> claims = jwtProvider.parseClaimsSafely(accessTokenClaims);
+
+        if (claims.isPresent() && jwtProvider.isAccessToken(claims.get())) {
+            return claims;
+        }
+
+        return Optional.empty();
+    }
+
+    private void setSecurityContextHolder(Long userId, List<SimpleGrantedAuthority> authorities) {
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(userId, null, authorities)
+        );
+    }
+
+    private List<SimpleGrantedAuthority> resolveAuthorities(String roleValue) {
+        if (!StringUtils.hasText(roleValue)) {
+            return List.of();
+        }
+
+        try {
+            return List.of(new SimpleGrantedAuthority(Role.valueOf(roleValue).getAuthority()));
+        } catch (IllegalArgumentException e) {
+            return List.of();
+        }
     }
 }

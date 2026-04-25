@@ -129,7 +129,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    @DisplayName("role claim이 없는 토큰이면 SecurityContext에 인증 정보를 설정하지 않는다")
+    @DisplayName("role claim이 없는 토큰이면 SecurityContext에 빈 권한 리스트가 설정된다")
     void doFilter_tokenWithNoRoleClaim_doesNotSetAuthentication() throws Exception {
         when(cookieProvider.extractAccessToken(request)).thenReturn(Optional.of(VALID_TOKEN));
         when(jwtProvider.parseClaimsSafely(VALID_TOKEN)).thenReturn(Optional.of(mockClaims));
@@ -138,7 +138,8 @@ class JwtAuthenticationFilterTest {
 
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertThat(
+            SecurityContextHolder.getContext().getAuthentication().getAuthorities()).isEmpty();
     }
 
     // ── 필터 체인 ──────────────────────────────────────────────────
