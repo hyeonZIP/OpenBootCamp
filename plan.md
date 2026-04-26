@@ -361,11 +361,12 @@ tasks:
 - [x] RefreshToken 엔티티 + RefreshTokenRepository (DB 저장으로 로그아웃 시 무효화)
       - 도메인 단위 테스트 (RefreshTokenTest — 9케이스)
       - Repository 테스트 (RefreshTokenRepositoryTest — 5케이스)
-      - ⚠️ OAuth2AuthenticationSuccessHandler에서 saveRefreshToken() 호출 누락 — AuthController 구현 시 함께 수정 필요
-- [ ] AuthController
+      - OAuth2AuthenticationSuccessHandler에서 saveRefreshToken() 호출 추가 완료
+- [x] AuthController
       - POST /api/v1/auth/refresh  AT 재발급 (RT 쿠키 검증 → DB 조회 → 새 AT 발급)
       - POST /api/v1/auth/logout   RT 무효화 + 쿠키 삭제
       - GET  /api/v1/auth/me   [AUTH]
+      - Controller 통합 테스트 (AuthControllerTest — 6케이스)
 - [x] SecurityConfig — CORS 전역 설정 + 경로별 접근 권한 설정 (구현 완료)
 - [x] Phase 1 API에 권한 추가
       - POST/PUT /bootcamps → BOOTCAMP_ADMIN or ADMIN

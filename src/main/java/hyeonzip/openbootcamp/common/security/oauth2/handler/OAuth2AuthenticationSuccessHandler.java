@@ -34,6 +34,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         User user = authService.upsertFromOAuth2(customUser.getUserInfo());
 
         TokenPair tokenPair = jwtProvider.issue(user.getId(), user.getRole().name());
+        authService.saveRefreshToken(user, tokenPair.refreshToken());
         cookieProvider.addTokenCookies(response, tokenPair);
 
         response.sendRedirect(frontendUrl + "/auth/callback");

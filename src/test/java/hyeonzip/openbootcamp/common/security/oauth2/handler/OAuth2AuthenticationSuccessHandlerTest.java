@@ -104,6 +104,14 @@ class OAuth2AuthenticationSuccessHandlerTest {
     }
 
     @Test
+    @DisplayName("발급된 RT를 DB에 저장한다")
+    void onAuthSuccess_savesRefreshToken() throws Exception {
+        handler.onAuthenticationSuccess(request, response, githubAuth);
+
+        verify(authService).saveRefreshToken(stubUser, stubTokenPair.refreshToken());
+    }
+
+    @Test
     @DisplayName("발급된 TokenPair로 쿠키를 설정한다")
     void onAuthSuccess_addsCookiesWithIssuedTokenPair() throws Exception {
         handler.onAuthenticationSuccess(request, response, githubAuth);

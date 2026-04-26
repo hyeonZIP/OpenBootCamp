@@ -54,6 +54,45 @@ class CookieProviderTest {
         assertThat(cookieProvider.extractAccessToken(request)).isEmpty();
     }
 
+    // ── extractRefreshToken ───────────────────────────────────────
+
+    @Test
+    @DisplayName("refreshToken 쿠키가 있으면 토큰 값을 반환한다")
+    void extractRefreshToken_present_returnsToken() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("refreshToken", "some-rt"));
+
+        assertThat(cookieProvider.extractRefreshToken(request)).contains("some-rt");
+    }
+
+    @Test
+    @DisplayName("refreshToken 쿠키가 없으면 빈 Optional을 반환한다")
+    void extractRefreshToken_noCookies_returnsEmpty() {
+        assertThat(cookieProvider.extractRefreshToken(new MockHttpServletRequest())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("refreshToken이 아닌 다른 이름의 쿠키는 무시한다")
+    void extractRefreshToken_wrongName_returnsEmpty() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("accessToken", "some-token"));
+
+        assertThat(cookieProvider.extractRefreshToken(request)).isEmpty();
+    }
+
+    // ── addAccessTokenCookie ──────────────────────────────────────
+
+    @Test
+    @DisplayName("addAccessTokenCookie는 accessToken을 HttpOnly Set-Cookie 헤더로 추가한다")
+    void addAccessTokenCookie_addsHttpOnlyCookie() {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        cookieProvider.addAccessTokenCookie(response, "new-access-token");
+
+        assertThat(setCookies(response))
+            .anyMatch(c -> c.startsWith("accessToken=new-access-token") && c.contains("HttpOnly"));
+    }
+
     // ── addTokenCookies ───────────────────────────────────────────
 
     @Test
@@ -68,7 +107,7 @@ class CookieProviderTest {
     }
 
     @Test
-    @DisplayName("refreshToken이 /api/v1/auth/refresh 경로로 제한된 HttpOnly 쿠키로 추가된다")
+    @DisplayName("refreshToken이 /api/v1/auth 경로로 제한된 HttpOnly 쿠키로 추가된다")
     void addTokenCookies_addsRefreshTokenCookieWithRestrictedPath() {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -77,7 +116,7 @@ class CookieProviderTest {
         assertThat(setCookies(response))
             .anyMatch(c -> c.startsWith("refreshToken=")
                 && c.contains("HttpOnly")
-                && c.contains("Path=/api/v1/auth/refresh"));
+                && c.contains("Path=/api/v1/auth"));
     }
 
     // ── clearTokenCookies ─────────────────────────────────────────

@@ -17,7 +17,7 @@ public class CookieProvider {
 
     private static final String ACCESS_TOKEN_COOKIE = "accessToken";
     private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
-    private static final String REFRESH_TOKEN_PATH = "/api/v1/auth/refresh";
+    private static final String REFRESH_TOKEN_PATH = "/api/v1/auth";
 
     @Value("${app.jwt.access-token-expiry}")
     private long accessTokenExpiry;
@@ -33,6 +33,21 @@ public class CookieProvider {
             .filter(c -> ACCESS_TOKEN_COOKIE.equals(c.getName()))
             .map(Cookie::getValue)
             .findFirst();
+    }
+
+    public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return Optional.empty();
+        }
+        return Arrays.stream(request.getCookies())
+            .filter(c -> REFRESH_TOKEN_COOKIE.equals(c.getName()))
+            .map(Cookie::getValue)
+            .findFirst();
+    }
+
+    public void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
+        addCookie(response, ACCESS_TOKEN_COOKIE, accessToken, "/",
+            Duration.ofMillis(accessTokenExpiry));
     }
 
     public void addTokenCookies(HttpServletResponse response, TokenPair tokenPair) {
