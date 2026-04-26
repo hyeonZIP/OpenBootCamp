@@ -357,8 +357,11 @@ tasks:
 - [x] JWT 유틸 클래스 (JwtProvider — 발급, 검증, Claims 추출)
 - [x] CookieProvider (HttpOnly 쿠키 설정/추출/삭제)
 - [x] JwtAuthenticationFilter (요청마다 쿠키에서 AT 검증)
-- [x] AuthService (인터페이스 + DefaultAuthService — upsertFromOAuth2, findById)
-- [ ] RefreshToken 엔티티 + RefreshTokenRepository (DB 저장으로 로그아웃 시 무효화)
+- [x] AuthService (인터페이스 + DefaultAuthService — upsertFromOAuth2, findById, saveRefreshToken, refresh, logout)
+- [x] RefreshToken 엔티티 + RefreshTokenRepository (DB 저장으로 로그아웃 시 무효화)
+      - 도메인 단위 테스트 (RefreshTokenTest — 9케이스)
+      - Repository 테스트 (RefreshTokenRepositoryTest — 5케이스)
+      - ⚠️ OAuth2AuthenticationSuccessHandler에서 saveRefreshToken() 호출 누락 — AuthController 구현 시 함께 수정 필요
 - [ ] AuthController
       - POST /api/v1/auth/refresh  AT 재발급 (RT 쿠키 검증 → DB 조회 → 새 AT 발급)
       - POST /api/v1/auth/logout   RT 무효화 + 쿠키 삭제
@@ -368,7 +371,7 @@ tasks:
       - POST/PUT /bootcamps → BOOTCAMP_ADMIN or ADMIN
       - DELETE /bootcamps → ADMIN only
 - [x] 단위 테스트 (JwtProviderTest, JwtAuthenticationFilterTest)
-- [ ] 단위 테스트 (AuthServiceTest)
+- [x] 단위 테스트 (AuthServiceTest — 13케이스)
 ```
 
 ---
